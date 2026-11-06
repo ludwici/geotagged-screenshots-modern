@@ -1,6 +1,6 @@
 tasks.register('inspectXaero') {
     doLast {
-        def classes = ["xaero.map.mods.gui.WaypointReader","xaero.hud.minimap.waypoint.render.WaypointMapRenderer","xaero.hud.minimap.waypoint.render.WaypointMapRenderReader","xaero.map.mods.gui.WaypointRenderer","xaero.map.element.MapElementGraphics","xaero.hud.minimap.element.render.MinimapElementRenderInfo","net.minecraft.client.gui.GuiGraphicsExtractor","net.minecraft.client.gui.screens.Screen"]
+        def classes = ["xaero.map.mods.gui.WaypointReader","xaero.hud.minimap.waypoint.render.WaypointMapRenderer","xaero.hud.minimap.waypoint.render.WaypointMapRenderReader","xaero.map.mods.gui.WaypointRenderer","xaero.map.element.MapElementGraphics","xaero.hud.minimap.element.render.MinimapElementRenderInfo","xaero.hud.minimap.element.render.MinimapElementGraphics","com.mojang.blaze3d.platform.NativeImage","net.minecraft.client.gui.GuiGraphicsExtractor","net.minecraft.client.gui.screens.Screen"]
         def jars = configurations.compileClasspath.resolve().findAll { it.name.endsWith('.jar') && it.isFile() }
         jars.each { jar ->
             def zip = new java.util.zip.ZipFile(jar)
