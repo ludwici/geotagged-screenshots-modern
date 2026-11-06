@@ -1,0 +1,5 @@
+{
+  "key.geotagged_screenshots_modern.enrich_existing_screenshots": "Enrich screenshots",
+  "message.geotagged_screenshots_modern.started_thumbnail_regeneration": "Regenerating thumbnails for %s screenshots",
+  "message.geotagged_screenshots_modern.completed_thumbnail_regeneration": "Completed regeneration of %s thumbnails"
+}

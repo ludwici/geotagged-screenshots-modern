@@ -23,14 +23,12 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '9.5.1'
-      - name: Inspect Xaero API
-        run: gradle inspectXaero --no-daemon
       - name: Build NeoForge mod
         run: gradle clean build --no-daemon --stacktrace
       - name: Upload mod jar
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: geotagged-screenshots-26.1.2-neoforge
+          name: geotagged-screenshots-modern-26.1.2-neoforge
           path: build/libs/*.jar
           if-no-files-found: error

@@ -22,6 +22,12 @@ class JpegImageEncoderTest {
     }
 
     @Test
+    void convertsArgbToAbgr() {
+        assertEquals(0xFF332211, JpegImageEncoder.toAbgr(0xFF112233));
+        assertEquals(0x112233, JpegImageEncoder.toRgb(JpegImageEncoder.toAbgr(0xFF112233)));
+    }
+
+    @Test
     void writesActualJpegPixels() throws Exception {
         BufferedImage image = new BufferedImage(16, 16, BufferedImage.TYPE_INT_RGB);
         for (int y = 0; y < image.getHeight(); y++) {
@@ -37,7 +43,7 @@ class JpegImageEncoderTest {
         assertEquals(0xFF, bytes[0] & 0xFF);
         assertEquals(0xD8, bytes[1] & 0xFF);
 
-        BufferedImage decoded = ImageIO.read(target);
+        BufferedImage decoded = JpegImageEncoder.read(target);
         assertNotNull(decoded);
         assertEquals(16, decoded.getWidth());
         assertEquals(16, decoded.getHeight());
