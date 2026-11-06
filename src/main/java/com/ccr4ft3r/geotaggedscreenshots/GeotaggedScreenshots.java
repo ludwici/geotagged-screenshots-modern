@@ -134,22 +134,30 @@ public class GeotaggedScreenshots {
 
         for (GeotaggedScreenshot screenshot : missing) {
             EXECUTOR.submit(() -> {
-                CompletableFuture<NativeImage> future = screenshot.getImageFuture(ImageType.ORIGINAL);
-                if (future == null) {
-                    return;
+                File originalFile = screenshot.getFile(ImageType.ORIGINAL);
+                File thumbnailFile = null;
+                try {
+                    NativeImage image = ImageUtil.loadImage(originalFile).join();
+                    if (image != null) {
+                        try (image) {
+                            thumbnailFile = ImageUtil.createThumbnail(image, originalFile);
+                        }
+                    }
+                } catch (Exception e) {
+                    LogUtils.getLogger().error("Couldn't regenerate thumbnail for {}", originalFile, e);
                 }
 
-                NativeImage image = future.join();
-                if (image == null) {
-                    return;
-                }
+                File generatedThumbnail = thumbnailFile;
+                Minecraft.getInstance().execute(() -> {
+                    if (generatedThumbnail != null && generatedThumbnail.isFile()) {
+                        screenshot.setFile(ImageType.THUMBNAIL, generatedThumbnail);
+                        screenshot.getImageFuture(ImageType.THUMBNAIL);
+                    }
 
-                screenshot.setFile(ImageType.THUMBNAIL, ImageUtil.createThumbnail(image, screenshot.getFile(ImageType.ORIGINAL)));
-                screenshot.close(ImageType.ORIGINAL);
-
-                if (completed.incrementAndGet() == missing.size()) {
-                    displayMessage("completed_thumbnail_regeneration", missing.size());
-                }
+                    if (completed.incrementAndGet() == missing.size()) {
+                        displayMessage("completed_thumbnail_regeneration", missing.size());
+                    }
+                });
             });
         }
     }

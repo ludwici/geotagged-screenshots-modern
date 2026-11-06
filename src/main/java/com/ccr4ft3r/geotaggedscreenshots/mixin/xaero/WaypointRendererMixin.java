@@ -49,6 +49,15 @@ public abstract class WaypointRendererMixin extends MapElementRenderer<Waypoint,
             return;
         }
 
+        Minecraft minecraft = Minecraft.getInstance();
+        boolean down = GLFW.glfwGetMouseButton(minecraft.getWindow().getWindow(), GLFW.GLFW_MOUSE_BUTTON_LEFT) == GLFW.GLFW_PRESS;
+        if (!down) {
+            geotagged_screenshots$mousePressed = false;
+        } else if (hovered && !geotagged_screenshots$mousePressed && minecraft.screen instanceof GuiMap) {
+            geotagged_screenshots$mousePressed = true;
+            minecraft.setScreen(new ScreenshotView(screenshot, new Vec3(waypoint.getX(), waypoint.getY(), waypoint.getZ()), minecraft.screen));
+        }
+
         CompletableFuture<NativeImage> future = screenshot.getImageFuture(ImageType.THUMBNAIL);
         if (future == null || !future.isDone()) {
             return;
@@ -63,14 +72,7 @@ public abstract class WaypointRendererMixin extends MapElementRenderer<Waypoint,
         int height = Math.max(16, (int) ((double) image.getHeight() * width / image.getWidth()));
         RenderUtil.renderImage(graphics, screenshot.getId(ImageType.THUMBNAIL), image.getWidth(), image.getHeight(), width, height, -width / 2, -height / 2);
 
-        Minecraft minecraft = Minecraft.getInstance();
-        boolean down = GLFW.glfwGetMouseButton(minecraft.getWindow().getWindow(), GLFW.GLFW_MOUSE_BUTTON_LEFT) == GLFW.GLFW_PRESS;
-        if (!down) {
-            geotagged_screenshots$mousePressed = false;
-        } else if (hovered && !geotagged_screenshots$mousePressed && minecraft.screen instanceof GuiMap) {
-            geotagged_screenshots$mousePressed = true;
-            minecraft.setScreen(new ScreenshotView(screenshot, new Vec3(waypoint.getX(), waypoint.getY(), waypoint.getZ()), minecraft.screen));
-        }
+
 
         cir.setReturnValue(false);
     }

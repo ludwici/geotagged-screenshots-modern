@@ -43,7 +43,7 @@ public class ScreenshotView extends Screen {
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        guiGraphics.fill(0, 0, width, height, 0xFF141820);
+        super.render(guiGraphics, mouseX, mouseY, partialTick);
 
         CompletableFuture<NativeImage> future = screenshot.getImageFuture(ImageType.ORIGINAL);
         if (future == null) {
@@ -74,7 +74,11 @@ public class ScreenshotView extends Screen {
             }
         }
 
-        super.render(guiGraphics, mouseX, mouseY, partialTick);
+    }
+
+    @Override
+    public void renderBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        guiGraphics.fill(0, 0, width, height, 0xFF141820);
     }
 
     private void renderStatus(GuiGraphics graphics, String message, String filename) {
