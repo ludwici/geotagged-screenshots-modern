@@ -29,6 +29,6 @@ jobs:
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: geotagged-screenshots-1.21.1-neoforge
+          name: geotagged-screenshots-modern-1.21.1-neoforge
           path: build/libs/*.jar
           if-no-files-found: error

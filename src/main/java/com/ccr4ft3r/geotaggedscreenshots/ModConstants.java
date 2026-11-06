@@ -6,7 +6,7 @@ import net.minecraft.client.Minecraft;
 import java.io.File;
 
 public class ModConstants {
-    public static final String MODID = "geotagged_screenshots";
+    public static final String MODID = "geotagged_screenshots_modern";
     public static final File SCREENSHOTS_DIR = new File(Minecraft.getInstance().gameDirectory, "screenshots");
     public static final File THUMBNAIL_DIR = new File(SCREENSHOTS_DIR, "geotagged_thumbnails");
 
