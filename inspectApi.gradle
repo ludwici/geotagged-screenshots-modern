@@ -1,0 +1,49 @@
+tasks.register('inspectApi') {
+    doLast {
+        def selected = [
+            'net.minecraft.client.Minecraft',
+            'net.minecraft.client.Options',
+            'net.minecraft.client.gui.Gui',
+            'net.minecraft.client.gui.components.ChatComponent',
+            'net.minecraft.client.gui.screens.Screen',
+            'net.minecraft.client.gui.screens.ScreenManager',
+            'net.minecraft.client.gui.GuiGraphicsExtractor',
+            'net.minecraft.client.renderer.MultiBufferSource',
+            'com.mojang.blaze3d.vertex.MultiBufferSource',
+            'xaero.map.mods.gui.WaypointRenderer',
+            'xaero.map.element.MapElementGraphics',
+            'xaero.map.element.render.ElementRenderer',
+            'xaero.map.gui.GuiMap',
+            'xaero.map.core.XaeroWorldMapCore',
+            'net.minecraft.client.Screenshot',
+            'net.minecraft.client.MouseHandler',
+            'net.minecraft.client.renderer.GameRenderer',
+            'net.minecraft.client.gui.components.ChatComponent$GuiMessageSource'
+        ]
+        def jars = configurations.compileClasspath.resolve().findAll { it.name.endsWith('.jar') }
+        println("API_JARS " + jars.size())
+        jars.each { jar ->
+            if (!(jar.name.contains('minecraft') || jar.name.contains('worldmap') || jar.name.contains('minimap'))) {
+                return
+            }
+            println("API_JAR " + jar.absolutePath)
+            def zip = new java.util.zip.ZipFile(jar)
+            try {
+                def candidates = zip.entries().findAll { e ->
+                    !e.directory && (e.name.contains('MultiBuffer') || e.name.contains('ScreenManager') || e.name.contains('Chat') || e.name.contains('ScreenController'))
+                }.collect { it.name }
+                candidates.take(100).each { println("API_CLASS " + it) }
+                selected.each { clazz ->
+                    if (zip.getEntry(clazz.replace('.', '/') + '.class') != null) {
+                        def process = new ProcessBuilder('javap','-classpath',jar.absolutePath,'-private', clazz).redirectErrorStream(true).start()
+                        def output = process.inputStream.text.readLines().take(260).join('\n')
+                        process.waitFor()
+                        println("API_JAVAP " + clazz + "\n" + output)
+                    }
+                }
+            } finally {
+                zip.close()
+            }
+        }
+    }
+}

@@ -52,3 +52,5 @@ tasks.withType(Test).configureEach {
     useJUnitPlatform()
 }
 
+
+apply from: 'inspectApi.gradle'
