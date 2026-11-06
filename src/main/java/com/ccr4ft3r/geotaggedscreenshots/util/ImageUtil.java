@@ -2,7 +2,6 @@ package com.ccr4ft3r.geotaggedscreenshots.util;
 
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.logging.LogUtils;
-import net.minecraft.Util;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -20,10 +19,11 @@ public class ImageUtil {
         Files.createDirectories(output.toPath().getParent());
 
         if (jpeg) {
+            int[] abgrPixels = image.getPixelsABGR();
             BufferedImage bufferedImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
             for (int y = 0; y < image.getHeight(); y++) {
                 for (int x = 0; x < image.getWidth(); x++) {
-                    bufferedImage.setRGB(x, y, JpegImageEncoder.toRgb(image.getPixelRGBA(x, y)));
+                    bufferedImage.setRGB(x, y, JpegImageEncoder.toRgb(abgrPixels[x + y * image.getWidth()]));
                 }
             }
 
@@ -75,6 +75,6 @@ public class ImageUtil {
                 LogUtils.getLogger().error("Couldn't load screenshot {}", file, e);
             }
             return null;
-        }, Util.backgroundExecutor());
+        });
     }
 }
