@@ -4,6 +4,10 @@ import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.logging.LogUtils;
 
 import java.awt.image.BufferedImage;
+import javax.imageio.ImageIO;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.util.Locale;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -69,12 +73,28 @@ public class ImageUtil {
 
     public static CompletableFuture<NativeImage> loadImage(File file) {
         return CompletableFuture.supplyAsync(() -> {
-            try (InputStream stream = new FileInputStream(file)) {
-                return NativeImage.read(stream);
+            try {
+                String filename = file.getName().toLowerCase(Locale.ROOT);
+                if (filename.endsWith(".jpg") || filename.endsWith(".jpeg")) {
+                    BufferedImage buffered = JpegImageEncoder.read(file);
+                    try (ByteArrayOutputStream output = new ByteArrayOutputStream()) {
+                        if (!ImageIO.write(buffered, "png", output)) {
+                            throw new IOException("No PNG writer available for decoded JPEG");
+                        }
+
+                        try (InputStream stream = new ByteArrayInputStream(output.toByteArray())) {
+                            return NativeImage.read(stream);
+                        }
+                    }
+                }
+
+                try (InputStream stream = new FileInputStream(file)) {
+                    return NativeImage.read(stream);
+                }
             } catch (Exception e) {
-                LogUtils.getLogger().error("Couldn't load screenshot {}", file, e);
+                LogUtils.getLogger().error("Couldn't load screenshot from {}", file.getAbsolutePath(), e);
+                return null;
             }
-            return null;
         });
     }
 }
