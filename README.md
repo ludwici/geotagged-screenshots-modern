@@ -1,38 +1,63 @@
-# Geotagged Screenshots Modern — Fabric 26.2
+# Geotagged Screenshots Modern
 
-A client-side mod for Minecraft **26.2** that creates screenshot waypoints and displays screenshot previews inside Xaero's World Map.
+A maintained **client-side** fork of [Geotagged Screenshots](https://github.com/CCr4ft3r/geotagged-screenshots), originally created by **CCr4ft3r** and maintained/ported by **[ludwici](https://github.com/ludwici)**.
 
-This branch targets **Fabric** and Minecraft **26.2** only. Earlier Minecraft releases have separate branches. This branch is separate from the Minecraft 1.21.1 branches.
+Screenshots become location-linked Xaero waypoints, making it easier to find places and revisit saved images in Xaero's World Map.
 
-## Requirements
-
-- Minecraft 26.2
-- Java 25
-- Fabric Loader 0.19.5 and Fabric API 0.159.0+26.2
-- Xaero's World Map 1.47.2
-- Xaero's Minimap 26.6.2
+**Branch:** `26.2-fabric` · **Minecraft:** `26.2` · **Platform:** Fabric · **Environment:** Client only
 
 ## Features
 
-- Save original screenshots as PNG or JPEG (92% JPEG quality).
-- Temporarily hide the HUD during screenshots and restore its previous state.
-- Create Xaero waypoint markers with screenshot thumbnails.
-- View a screenshot at full size by selecting its marker in Xaero's World Map.
-- Recreate missing thumbnails from original screenshots.
-- Optional screenshot success messages and separate screenshot waypoint set.
+- Save screenshots as PNG or JPEG (configurable).
+- Hide the HUD for a screenshot and restore the previous F1 state.
+- Create screenshot waypoints with thumbnail previews on Xaero's World Map.
+- Open full-size screenshots from waypoint markers.
+- Recreate missing thumbnails from original screenshot files.
+- Configure waypoint sets and screenshot-related chat messages.
+
+## Requirements
+
+- Minecraft `26.2`
+- Fabric Loader `0.19.5`
+- Fabric API `0.159.0+26.2`
+- Xaero's World Map `1.47.2`
+- Xaero's Minimap `26.6.2`
+- Java 25
+
+Install this mod and its dependencies on the **client**. A dedicated server does not need Geotagged Screenshots. Other Minecraft versions are maintained in separate branches.
 
 ## Configuration
 
 The client settings are stored in `config/geotagged_screenshots-client.json`.
 
+## FAQ
+
+**I cannot see screenshots on Xaero's World Map.**
+
+Check that screenshot waypoints are enabled and that the `Geotagged Screenshots` waypoint set is selected. Images need corresponding waypoints.
+
+**Can I include this mod in a modpack?**
+
+Yes, subject to the LGPL-3.0 license and applicable copyright notices.
+
+**Where can I report bugs or suggest features?**
+
+Use the [maintained fork's issue tracker](https://github.com/ludwici/geotagged-screenshots-modern/issues).
+
 ## Building
 
-Use JDK 25 and Gradle 9.7.0:
+Use JDK 25 and run `gradle clean build`. GitHub Actions builds, tests and uploads the JAR. Test gameplay and Xaero integrations in Minecraft as well.
 
-```shell
-gradle clean build
-```
+## Credits and license
 
-The `build` task runs the unit tests and creates the Fabric JAR in `build/libs`. GitHub Actions builds and uploads it on pushes to `26.2-fabric`.
+- **Original author:** [CCr4ft3r — Geotagged Screenshots](https://github.com/CCr4ft3r/geotagged-screenshots)
+- **Fork maintainer:** [ludwici](https://github.com/ludwici/geotagged-screenshots-modern)
+- **License:** [GNU LGPL-3.0](LICENSE)
 
-**Testing:** CI checks compilation and JPEG encoding. In-game behavior, map marker interactions, HUD restoration, and runtime mixin compatibility still require testing on an actual client with both Xaero mods.
+This maintained fork contains updates for modern Minecraft releases and changes to screenshot saving, waypoint previews and client compatibility. Original copyright notices and license obligations continue to apply.
+
+## Links
+
+- [Source code](https://github.com/ludwici/geotagged-screenshots-modern)
+- [Issues and feature requests](https://github.com/ludwici/geotagged-screenshots-modern/issues)
+- [Original project](https://github.com/CCr4ft3r/geotagged-screenshots)
