@@ -5,6 +5,7 @@ import com.ccr4ft3r.geotaggedscreenshots.container.GeotaggedScreenshot;
 import com.ccr4ft3r.geotaggedscreenshots.container.ImageType;
 import com.ccr4ft3r.geotaggedscreenshots.screens.ScreenshotView;
 import com.ccr4ft3r.geotaggedscreenshots.util.RenderUtil;
+import com.ccr4ft3r.geotaggedscreenshots.util.ThumbnailGeometry;
 import com.mojang.blaze3d.platform.NativeImage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -68,8 +69,8 @@ public abstract class WaypointRendererMixin extends MapElementRenderer<Waypoint,
             return;
         }
 
-        int width = Math.max(24, Math.min(144, (int) (image.getWidth() * scale / 6.0F)));
-        int height = Math.max(16, (int) ((double) image.getHeight() * width / image.getWidth()));
+        int width = ThumbnailGeometry.worldMapWidth(image.getWidth(), scale);
+        int height = ThumbnailGeometry.worldMapHeight(image.getWidth(), image.getHeight(), scale);
         RenderUtil.renderImage(graphics, screenshot.getId(ImageType.THUMBNAIL), image.getWidth(), image.getHeight(), width, height, -width / 2, -height / 2);
 
 
