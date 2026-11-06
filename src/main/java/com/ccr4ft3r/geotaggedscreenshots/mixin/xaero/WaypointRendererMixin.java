@@ -4,6 +4,7 @@ import com.ccr4ft3r.geotaggedscreenshots.GeotaggedScreenshots;
 import com.ccr4ft3r.geotaggedscreenshots.container.GeotaggedScreenshot;
 import com.ccr4ft3r.geotaggedscreenshots.container.ImageType;
 import com.ccr4ft3r.geotaggedscreenshots.screens.ScreenshotView;
+import com.ccr4ft3r.geotaggedscreenshots.util.ThumbnailGeometry;
 import com.mojang.blaze3d.platform.NativeImage;
 import net.minecraft.client.Minecraft;
 import xaero.lib.client.graphics.XaeroBufferProvider;
@@ -49,6 +50,15 @@ public abstract class WaypointRendererMixin extends ElementRenderer<Waypoint, Wa
             return;
         }
 
+        Minecraft minecraft = Minecraft.getInstance();
+        boolean down = minecraft.mouseHandler.isLeftPressed();
+        if (!down) {
+            geotagged_screenshots$mousePressed = false;
+        } else if (hovered && !geotagged_screenshots$mousePressed && minecraft.gui.screen() instanceof GuiMap) {
+            geotagged_screenshots$mousePressed = true;
+            minecraft.gui.setScreen(new ScreenshotView(screenshot, new Vec3(waypoint.getX(), waypoint.getY(), waypoint.getZ()), minecraft.gui.screen()));
+        }
+
         CompletableFuture<NativeImage> future = screenshot.getImageFuture(ImageType.THUMBNAIL);
         if (future == null || !future.isDone()) {
             return;
@@ -59,21 +69,14 @@ public abstract class WaypointRendererMixin extends ElementRenderer<Waypoint, Wa
             return;
         }
 
-        int width = Math.max(24, Math.min(144, (int) (image.getWidth() * scale / 6.0F)));
-        int height = Math.max(16, (int) ((double) image.getHeight() * width / image.getWidth()));
+        int width = ThumbnailGeometry.worldMapWidth(image.getWidth(), scale);
+        int height = ThumbnailGeometry.worldMapHeight(image.getWidth(), image.getHeight(), scale);
         Identifier id = screenshot.getId(ImageType.THUMBNAIL);
         if (id != null) {
             graphics.blit(id, -width / 2, -height / 2, width, height, 0, 0, image.getWidth(), image.getHeight(), image.getWidth(), RenderPipelines.GUI_TEXTURED);
         }
 
-        Minecraft minecraft = Minecraft.getInstance();
-        boolean down = minecraft.mouseHandler.isLeftPressed();
-        if (!down) {
-            geotagged_screenshots$mousePressed = false;
-        } else if (hovered && !geotagged_screenshots$mousePressed && minecraft.gui.screen() instanceof GuiMap) {
-            geotagged_screenshots$mousePressed = true;
-            minecraft.gui.setScreen(new ScreenshotView(screenshot, new Vec3(waypoint.getX(), waypoint.getY(), waypoint.getZ()), minecraft.gui.screen()));
-        }
+
 
         cir.setReturnValue(false);
     }
