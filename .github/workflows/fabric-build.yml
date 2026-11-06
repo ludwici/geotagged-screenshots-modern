@@ -29,6 +29,6 @@ jobs:
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: geotagged-screenshots-26.1.2-fabric
+          name: geotagged-screenshots-modern-26.1.2-fabric
           path: build/libs/*-fabric-*.jar
           if-no-files-found: error
