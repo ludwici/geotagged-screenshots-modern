@@ -53,4 +53,3 @@ tasks.withType(Test).configureEach {
     useJUnitPlatform()
 }
 
-apply from: 'verifyXaero.gradle'
