@@ -26,7 +26,7 @@ Minecraft usually saves screenshots as files without an easy way to find the loc
 
 ## Configuration
 
-Settings are stored in the Minecraft `config` directory in `geotagged_screenshots_modern-client.toml` (NeoForge) or `geotagged_screenshots-client.json` (Fabric).
+Settings are stored in the Minecraft `config` directory in `geotagged_screenshots_modern-client.toml` (NeoForge) or `geotagged_screenshots_modern-client.json` (Fabric).
 
 ## FAQ
 
