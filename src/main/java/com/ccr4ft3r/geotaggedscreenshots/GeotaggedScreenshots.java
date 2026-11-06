@@ -27,6 +27,8 @@ import xaero.map.gui.GuiMap;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -39,11 +41,25 @@ public class GeotaggedScreenshots {
     public static WorldScreenshotAlbum ALBUM;
 
     public GeotaggedScreenshots(IEventBus modEventBus, ModContainer modContainer) {
+        migrateLegacyClientConfig();
         modContainer.registerConfig(ModConfig.Type.CLIENT, ClientConfig.CONFIG, ModConstants.MODID + "-client.toml");
         NeoForge.EVENT_BUS.addListener(GeotaggedScreenshots::onScreenshot);
         NeoForge.EVENT_BUS.addListener(GeotaggedScreenshots::onScreenOpening);
         NeoForge.EVENT_BUS.addListener(ScreenshotCapture::onFramePre);
         NeoForge.EVENT_BUS.addListener(ScreenshotCapture::onFramePost);
+    }
+
+    private static void migrateLegacyClientConfig() {
+        Path configDirectory = Minecraft.getInstance().gameDirectory.toPath().resolve("config");
+        Path legacyConfig = configDirectory.resolve("geotagged_screenshots-client.toml");
+        Path modernConfig = configDirectory.resolve(ModConstants.MODID + "-client.toml");
+        if (Files.isRegularFile(legacyConfig) && Files.notExists(modernConfig)) {
+            try {
+                Files.copy(legacyConfig, modernConfig);
+            } catch (IOException e) {
+                LogUtils.getLogger().warn("Couldn't migrate Geotagged Screenshots config", e);
+            }
+        }
     }
 
     private static void onScreenOpening(ScreenEvent.Opening event) {
@@ -100,22 +116,30 @@ public class GeotaggedScreenshots {
         }
 
         String newWorldId = processor.getMapWorld().toString();
-        if (ALBUM != null && ALBUM.getId().equals(newWorldId)) {
-            return;
-        }
-
         WaypointSet screenshotSet = XaeroWaypointUtil.getScreenshotWaypointSet();
         if (screenshotSet == null) {
             return;
         }
 
-        if (ALBUM != null) {
-            ALBUM.getScreenshots().forEach(GeotaggedScreenshot::close);
+        if (ALBUM == null || !ALBUM.getId().equals(newWorldId)) {
+            if (ALBUM != null) {
+                ALBUM.getScreenshots().forEach(GeotaggedScreenshot::close);
+            }
+
+            ALBUM = new WorldScreenshotAlbum(newWorldId);
         }
 
-        ALBUM = new WorldScreenshotAlbum(newWorldId);
-        screenshotSet.getWaypoints().forEach(waypoint -> ALBUM.add(new GeotaggedScreenshot(waypoint.getName())));
-        regenerateMissingThumbnails();
+        int discovered = 0;
+        for (var waypoint : screenshotSet.getWaypoints()) {
+            if (ALBUM.getScreenshot(waypoint.getName()) == null) {
+                ALBUM.add(new GeotaggedScreenshot(waypoint.getName()));
+                discovered++;
+            }
+        }
+
+        if (discovered > 0) {
+            regenerateMissingThumbnails();
+        }
     }
 
     private static void regenerateMissingThumbnails() {
@@ -134,22 +158,30 @@ public class GeotaggedScreenshots {
 
         for (GeotaggedScreenshot screenshot : missing) {
             EXECUTOR.submit(() -> {
-                CompletableFuture<NativeImage> future = screenshot.getImageFuture(ImageType.ORIGINAL);
-                if (future == null) {
-                    return;
+                File originalFile = screenshot.getFile(ImageType.ORIGINAL);
+                File thumbnailFile = null;
+                try {
+                    NativeImage image = ImageUtil.loadImage(originalFile).join();
+                    if (image != null) {
+                        try (image) {
+                            thumbnailFile = ImageUtil.createThumbnail(image, originalFile);
+                        }
+                    }
+                } catch (Exception e) {
+                    LogUtils.getLogger().error("Couldn't regenerate thumbnail for {}", originalFile, e);
                 }
 
-                NativeImage image = future.join();
-                if (image == null) {
-                    return;
-                }
+                File generatedThumbnail = thumbnailFile;
+                Minecraft.getInstance().execute(() -> {
+                    if (generatedThumbnail != null && generatedThumbnail.isFile()) {
+                        screenshot.setFile(ImageType.THUMBNAIL, generatedThumbnail);
+                        screenshot.getImageFuture(ImageType.THUMBNAIL);
+                    }
 
-                screenshot.setFile(ImageType.THUMBNAIL, ImageUtil.createThumbnail(image, screenshot.getFile(ImageType.ORIGINAL)));
-                screenshot.close(ImageType.ORIGINAL);
-
-                if (completed.incrementAndGet() == missing.size()) {
-                    displayMessage("completed_thumbnail_regeneration", missing.size());
-                }
+                    if (completed.incrementAndGet() == missing.size()) {
+                        displayMessage("completed_thumbnail_regeneration", missing.size());
+                    }
+                });
             });
         }
     }
@@ -161,7 +193,7 @@ public class GeotaggedScreenshots {
 
         Minecraft.getInstance().execute(() -> {
             if (Minecraft.getInstance().player != null) {
-                Minecraft.getInstance().gui.getChat().addClientSystemMessage(Component.translatable("message.geotagged_screenshots." + key, count));
+                Minecraft.getInstance().gui.getChat().addClientSystemMessage(Component.translatable("message." + ModConstants.MODID + "." + key, count));
             }
         });
     }
