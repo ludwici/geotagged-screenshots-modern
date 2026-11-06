@@ -1,58 +1,70 @@
-### Ever wanted to make memorable memories memorizable? Give this mod a shot.
+# Geotagged Screenshots Modern
 
-## 📜 Motivation
-Minecraft saves all taken screenshots inside a single folder without context information. Making it difficult if you are looking for specific screenshots of a certain world or a special place.
-This can be improved so that players can take an imaginary journey back to visited places.
+A maintained **client-side** fork of [Geotagged Screenshots](https://github.com/CCr4ft3r/geotagged-screenshots), originally created by **CCr4ft3r** and maintained/ported by **[ludwici](https://github.com/ludwici)**.
 
-## 💡 About
-Whenever you create a new screenshot in Minecraft this mods adds various information about your **in-game** location to the screenshot files.\
-In addition to that it also creates new waypoints to Xaero's World Map and Minimap to the exact same locations in a separate waypoint set: Geotagged Screenshots
+Screenshots become location-linked waypoints in Xaero's World Map and Minimap, so you can return to memorable places and view captured images from the map.
 
-These two pieces of information are being used to render the screenshots in Xaero's World Map. \
-All of these can be viewed in a full screen viewer by left-clicking it.\
-Both mods, Xaero's World Map and Minimap, are required dependencies.
+**Branch:** `1.21.1-neo` · **Minecraft:** `1.21.1` · **Platform:** NeoForge · **Environment:** Client only
 
-<img src="https://i.imgur.com/KabmXSc.png" alt="comparison" width="1133" height="637" />
+## Features
 
-## ⚙️ How does it work?
-Geotagged Screenshots currently adds the following metadata to newly created screenshots:
-- a generated screenshot identifier
-- a generated identifier of the world in which the screenshot was taken
-- player coordinates at the time of creation
-- dimension-id at the time of creation
+- Save Minecraft screenshots as PNG or JPEG (configurable).
+- Hide the HUD for a screenshot and restore its previous F1 state.
+- Create Xaero waypoint markers for screenshots and show thumbnails on Xaero's World Map.
+- Show screenshot thumbnails on Xaero's Minimap as well as the world map.
+- Click screenshot markers on the world map to view the full-size image.
+- Restore missing thumbnails from original screenshot files.
 
-Furthermore it creates a separate directory for thumbnails (each file includes the same metadata as the original one). These thumbnails are used to display them in the world map. Screenshots will only be loaded for the fullscreen viewer.
+## Requirements
 
+- Minecraft `1.21.1`
+- NeoForge `21.1.230`
+- Xaero's World Map `1.44.2`
+- Xaero's Minimap `26.4.2`
+- Java 21
 
-## ❗ Important Notes
-- This mod has been tested carefully. However it is still in beta. Please report any bugs you are facing.
-- This project is not associated neither officially supported by Xaero's World Map/Minimap.
-- Geotagged Screenshots tries to be as less invasive as possible. However it needed to achieve compatbility with Xaero's World Map und Minimap by itself. Before reporting any bugs to Xaero make sure the bug is still happen without Geotagged Screenshots installed. Otherwise report it to me.
-- Removing a screenshots waypoint will make the screenshot dissapear from the world map.
+Install this mod and its dependencies on the **client**. A dedicated server does not need Geotagged Screenshots installed. Singleplayer and multiplayer clients are supported.
 
+## Configuration
 
-## 🔭 Limitations and Roadmap
-- Currently world backups needs to include the thumbnails directory since they are not recreated. This will be improved in future.
-- Location metadata is only added to newly created screenshots. Enriching existing ones will be added in the future.
-- A proper config file is work in progress
+The client settings are stored in `config/geotagged_screenshots-client.toml`.
 
-## 📝 FAQ
-Q: I cannot see my created screenshots in the world map. \
-A: Make sure to select the waypoint set "Geotagged Screenshots".
+Options include JPEG/PNG output, hiding the HUD while taking screenshots, screenshot waypoint sets, and screenshot/thumbnail chat messages.
 
-Q: Can I use Geotagged Screenshots in my modpack?\
-A: Yes -  Feel free to include it - Remember to give credit and don't claim it as your own creation.
+## FAQ
 
-Q: Are you going to create or support a Fabric version?\
-A: No. But every other dev is allowed to do so under the given conditions of the license.
+**I can't see screenshot previews on the world map. What should I check?**
 
-Q: Can you add ...?\
-A: Please create a feature request on GitHub.
+Make sure the screenshot waypoints are enabled and the `Geotagged Screenshots` waypoint set is selected in Xaero. Existing screenshots also need their corresponding waypoints.
 
+**Can I include this mod in a modpack?**
 
-## 🔨 ModLoader
-This mod is only available for Forge. Support for NeoForge will be added with the next major release at the earliest.
+Yes, provided you follow the LGPL-3.0 license terms and preserve applicable attribution and license notices.
 
+**Where can I report a bug or request a feature?**
 
-## 🌎 Links
-[Report issues and request features](https://github.com/CCr4ft3r/geotagged-screenshots/issues)
+Use the [issue tracker](https://github.com/ludwici/geotagged-screenshots-modern/issues).
+
+## Building
+
+Use JDK 21 and run:
+
+```shell
+gradle clean build
+```
+
+GitHub Actions runs the build and uploads compiled JAR files. A successful build does not replace testing in Minecraft with Xaero's mods installed.
+
+## Credits and license
+
+- **Original project and author:** [Geotagged Screenshots — CCr4ft3r](https://github.com/CCr4ft3r/geotagged-screenshots)
+- **Maintained fork and ports:** [ludwici](https://github.com/ludwici/geotagged-screenshots-modern)
+- **License:** [GNU LGPL-3.0](LICENSE)
+
+This fork updates the mod for newer Minecraft versions and includes changes to screenshot storage, previews, waypoint integration and client-side compatibility. The original author's credits and copyright notices remain applicable.
+
+## Links
+
+- [Source code](https://github.com/ludwici/geotagged-screenshots-modern)
+- [Issues and feature requests](https://github.com/ludwici/geotagged-screenshots-modern/issues)
+- [Original mod](https://github.com/CCr4ft3r/geotagged-screenshots)
