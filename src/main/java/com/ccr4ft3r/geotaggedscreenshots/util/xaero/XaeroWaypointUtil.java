@@ -76,9 +76,11 @@ public class XaeroWaypointUtil {
         Waypoint waypoint = new Waypoint((int) position.x, (int) position.y, (int) position.z, name, "S", WaypointColor.AQUA);
         set.add(waypoint);
 
-        GeotaggedScreenshots.ALBUM.add(new GeotaggedScreenshot(name)
+        GeotaggedScreenshot screenshot = new GeotaggedScreenshot(name)
                 .setFile(ImageType.ORIGINAL, screenshotFile)
-                .setFile(ImageType.THUMBNAIL, thumbnailFile));
+                .setFile(ImageType.THUMBNAIL, thumbnailFile);
+        GeotaggedScreenshots.ALBUM.add(screenshot);
+        screenshot.getImageFuture(ImageType.THUMBNAIL);
 
         LogUtils.getLogger().debug("Added screenshot waypoint at {}", position);
     }

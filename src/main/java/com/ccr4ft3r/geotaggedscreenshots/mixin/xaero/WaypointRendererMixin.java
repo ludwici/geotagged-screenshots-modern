@@ -5,6 +5,7 @@ import com.ccr4ft3r.geotaggedscreenshots.container.GeotaggedScreenshot;
 import com.ccr4ft3r.geotaggedscreenshots.container.ImageType;
 import com.ccr4ft3r.geotaggedscreenshots.screens.ScreenshotView;
 import com.ccr4ft3r.geotaggedscreenshots.util.RenderUtil;
+import com.ccr4ft3r.geotaggedscreenshots.util.ThumbnailGeometry;
 import com.mojang.blaze3d.platform.NativeImage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -49,6 +50,15 @@ public abstract class WaypointRendererMixin extends MapElementRenderer<Waypoint,
             return;
         }
 
+        Minecraft minecraft = Minecraft.getInstance();
+        boolean down = GLFW.glfwGetMouseButton(minecraft.getWindow().getWindow(), GLFW.GLFW_MOUSE_BUTTON_LEFT) == GLFW.GLFW_PRESS;
+        if (!down) {
+            geotagged_screenshots$mousePressed = false;
+        } else if (hovered && !geotagged_screenshots$mousePressed && minecraft.screen instanceof GuiMap) {
+            geotagged_screenshots$mousePressed = true;
+            minecraft.setScreen(new ScreenshotView(screenshot, new Vec3(waypoint.getX(), waypoint.getY(), waypoint.getZ()), minecraft.screen));
+        }
+
         CompletableFuture<NativeImage> future = screenshot.getImageFuture(ImageType.THUMBNAIL);
         if (future == null || !future.isDone()) {
             return;
@@ -59,18 +69,11 @@ public abstract class WaypointRendererMixin extends MapElementRenderer<Waypoint,
             return;
         }
 
-        int width = Math.max(24, Math.min(144, (int) (image.getWidth() * scale / 6.0F)));
-        int height = Math.max(16, (int) ((double) image.getHeight() * width / image.getWidth()));
+        int width = ThumbnailGeometry.worldMapWidth(image.getWidth(), scale);
+        int height = ThumbnailGeometry.worldMapHeight(image.getWidth(), image.getHeight(), scale);
         RenderUtil.renderImage(graphics, screenshot.getId(ImageType.THUMBNAIL), image.getWidth(), image.getHeight(), width, height, -width / 2, -height / 2);
 
-        Minecraft minecraft = Minecraft.getInstance();
-        boolean down = GLFW.glfwGetMouseButton(minecraft.getWindow().getWindow(), GLFW.GLFW_MOUSE_BUTTON_LEFT) == GLFW.GLFW_PRESS;
-        if (!down) {
-            geotagged_screenshots$mousePressed = false;
-        } else if (hovered && !geotagged_screenshots$mousePressed && minecraft.screen instanceof GuiMap) {
-            geotagged_screenshots$mousePressed = true;
-            minecraft.setScreen(new ScreenshotView(screenshot, new Vec3(waypoint.getX(), waypoint.getY(), waypoint.getZ()), minecraft.screen));
-        }
+
 
         cir.setReturnValue(false);
     }

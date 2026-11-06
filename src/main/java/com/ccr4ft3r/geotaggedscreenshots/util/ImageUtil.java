@@ -5,6 +5,7 @@ import com.mojang.logging.LogUtils;
 import net.minecraft.Util;
 
 import java.awt.image.BufferedImage;
+import java.util.Locale;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -69,12 +70,32 @@ public class ImageUtil {
 
     public static CompletableFuture<NativeImage> loadImage(File file) {
         return CompletableFuture.supplyAsync(() -> {
-            try (InputStream stream = new FileInputStream(file)) {
-                return NativeImage.read(stream);
+            try {
+                String filename = file.getName().toLowerCase(Locale.ROOT);
+                if (filename.endsWith(".jpg") || filename.endsWith(".jpeg")) {
+                    BufferedImage buffered = JpegImageEncoder.read(file);
+                    NativeImage image = new NativeImage(buffered.getWidth(), buffered.getHeight(), false);
+                    try {
+                        for (int y = 0; y < buffered.getHeight(); y++) {
+                            for (int x = 0; x < buffered.getWidth(); x++) {
+                                image.setPixelRGBA(x, y, JpegImageEncoder.toAbgr(buffered.getRGB(x, y)));
+                            }
+                        }
+
+                        return image;
+                    } catch (Exception e) {
+                        image.close();
+                        throw e;
+                    }
+                }
+
+                try (InputStream stream = new FileInputStream(file)) {
+                    return NativeImage.read(stream);
+                }
             } catch (Exception e) {
-                LogUtils.getLogger().error("Couldn't load screenshot {}", file, e);
+                LogUtils.getLogger().error("Couldn't load screenshot from {}", file.getAbsolutePath(), e);
+                return null;
             }
-            return null;
         }, Util.backgroundExecutor());
     }
 }
