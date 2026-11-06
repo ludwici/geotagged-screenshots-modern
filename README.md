@@ -1,42 +1,70 @@
-# Geotagged Screenshots Modern — Fabric 1.21.1
+# Geotagged Screenshots Modern
 
-A client-side Minecraft mod that places screenshot waypoints in **Xaero's Minimap** and shows image previews in **Xaero's World Map**.
+A maintained **client-side** fork of [Geotagged Screenshots](https://github.com/CCr4ft3r/geotagged-screenshots), originally created by **CCr4ft3r** and maintained/ported by **[ludwici](https://github.com/ludwici)**.
 
-This branch targets **Minecraft 1.21.1 with Fabric** exclusively. The NeoForge port is maintained separately in the `1.21.1-neo` branch.
+Screenshots become location-linked waypoints in Xaero's World Map and Minimap, so you can return to memorable places and view captured images from the map.
 
-## Dependencies
-
-- Fabric Loader 0.19.3
-- Fabric API 0.116.13+1.21.1
-- Xaero's World Map 1.44.2 for Fabric
-- Xaero's Minimap 26.4.2 for Fabric
-- Java 21
-
-The versions are aligned with the Fabric branch of [CobblemonRaidDenIcons](https://github.com/ludwici/CobblemonRaidDenIcons/tree/fabric).
+**Branch:** `1.21.1-fabric` · **Minecraft:** `1.21.1` · **Platform:** Fabric · **Environment:** Client only
 
 ## Features
 
-- Capture PNG or real JPEG screenshots (JPEG quality 92%).
-- Automatically hide HUD while capturing and restore the F1 state.
-- Create image thumbnails and screenshot waypoints.
-- Open screenshots from the Xaero World Map waypoint marker.
-- Recreate missing thumbnails from their original screenshots.
-- Disable screenshot success chat messages.
+- Save Minecraft screenshots as PNG or JPEG (configurable).
+- Hide the HUD for a screenshot and restore its previous F1 state.
+- Create Xaero waypoint markers for screenshots and show thumbnails on Xaero's World Map.
+- Click screenshot markers on the world map to view the full-size image.
+- Restore missing thumbnails from original screenshot files.
+
+## Requirements
+
+- Minecraft `1.21.1`
+- Fabric Loader `0.19.3`
+- Fabric API `0.116.13+1.21.1`
+- Xaero's World Map `1.44.2`
+- Xaero's Minimap `26.4.2`
+- Java 21
+
+Install this mod and its dependencies on the **client**. A dedicated server does not need Geotagged Screenshots installed. Singleplayer and multiplayer clients are supported.
 
 ## Configuration
 
-The client configuration file is automatically generated at `config/geotagged_screenshots-client.json` on launch. Restart the client after editing it.
+The client settings are stored in `config/geotagged_screenshots-client.json`.
 
-## Build
+Options include JPEG/PNG output, hiding the HUD while taking screenshots, screenshot waypoint sets, and screenshot/thumbnail chat messages.
 
-Use Gradle 9.5.1 and JDK 21:
+## FAQ
 
-```bash
+**I can't see screenshot previews on the world map. What should I check?**
+
+Make sure the screenshot waypoints are enabled and the `Geotagged Screenshots` waypoint set is selected in Xaero. Existing screenshots also need their corresponding waypoints.
+
+**Can I include this mod in a modpack?**
+
+Yes, provided you follow the LGPL-3.0 license terms and preserve applicable attribution and license notices.
+
+**Where can I report a bug or request a feature?**
+
+Use the [issue tracker](https://github.com/ludwici/geotagged-screenshots-modern/issues).
+
+## Building
+
+Use JDK 21 and run:
+
+```shell
 gradle clean build
 ```
 
-The GitHub Actions workflow builds the Fabric JAR and runs unit tests on pushes to `1.21.1-fabric`.
+GitHub Actions runs the build and uploads compiled JAR files. A successful build does not replace testing in Minecraft with Xaero's mods installed.
 
-## Status
+## Credits and license
 
-Successful compilation does not replace in-game verification. Test screenshot capture, waypoint creation, preview clicks, JPEG reopening, and F1 state restoration in a Fabric 1.21.1 client.
+- **Original project and author:** [Geotagged Screenshots — CCr4ft3r](https://github.com/CCr4ft3r/geotagged-screenshots)
+- **Maintained fork and ports:** [ludwici](https://github.com/ludwici/geotagged-screenshots-modern)
+- **License:** [GNU LGPL-3.0](LICENSE)
+
+This fork updates the mod for newer Minecraft versions and includes changes to screenshot storage, previews, waypoint integration and client-side compatibility. The original author's credits and copyright notices remain applicable.
+
+## Links
+
+- [Source code](https://github.com/ludwici/geotagged-screenshots-modern)
+- [Issues and feature requests](https://github.com/ludwici/geotagged-screenshots-modern/issues)
+- [Original mod](https://github.com/CCr4ft3r/geotagged-screenshots)
