@@ -9,4 +9,4 @@ pluginManagement {
     }
 }
 
-rootProject.name = 'geotagged-screenshots'
+rootProject.name = 'geotagged-screenshots-modern'

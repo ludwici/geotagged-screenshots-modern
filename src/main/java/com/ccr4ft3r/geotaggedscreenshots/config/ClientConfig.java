@@ -2,6 +2,7 @@ package com.ccr4ft3r.geotaggedscreenshots.config;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.ccr4ft3r.geotaggedscreenshots.ModConstants;
 import com.mojang.logging.LogUtils;
 import net.fabricmc.loader.api.FabricLoader;
 
@@ -17,10 +18,15 @@ public final class ClientConfig {
     }
 
     public static void load() {
-        Path file = FabricLoader.getInstance().getConfigDir().resolve("geotagged_screenshots-client.json");
+        Path configDir = FabricLoader.getInstance().getConfigDir();
+        Path file = configDir.resolve(ModConstants.MODID + "-client.json");
+        Path legacy = configDir.resolve("geotagged_screenshots-client.json");
 
         try {
             Files.createDirectories(file.getParent());
+            if (Files.isRegularFile(legacy) && Files.notExists(file)) {
+                Files.copy(legacy, file);
+            }
 
             if (Files.isRegularFile(file)) {
                 Data saved = GSON.fromJson(Files.readString(file), Data.class);

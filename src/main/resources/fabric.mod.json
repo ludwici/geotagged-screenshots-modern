@@ -1,15 +1,16 @@
 {
   "schemaVersion": 1,
-  "id": "geotagged_screenshots",
+  "id": "geotagged_screenshots_modern",
   "version": "${version}",
-  "name": "Geotagged Screenshots",
+  "name": "Geotagged Screenshots Modern",
   "description": "Creates screenshot waypoints and previews in Xaero's World Map",
   "authors": [
     "ludwici"
   ],
   "contact": {
     "sources": "https://github.com/ludwici/geotagged-screenshots-modern",
-    "issues": "https://github.com/ludwici/geotagged-screenshots-modern/issues"
+    "issues": "https://github.com/ludwici/geotagged-screenshots-modern/issues",
+    "homepage": "https://github.com/ludwici/geotagged-screenshots-modern"
   },
   "license": "LGPL-3.0",
   "icon": "logo.png",
@@ -20,7 +21,7 @@
     ]
   },
   "mixins": [
-    "geotagged_screenshots.mixins.json"
+    "geotagged_screenshots_modern.mixins.json"
   ],
   "depends": {
     "fabricloader": ">=0.19.3",

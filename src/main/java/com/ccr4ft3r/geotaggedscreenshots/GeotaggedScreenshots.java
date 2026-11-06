@@ -14,6 +14,7 @@ import net.minecraft.network.chat.Component;
 import xaero.hud.minimap.waypoint.set.WaypointSet;
 import xaero.map.core.XaeroWorldMapCore;
 
+import java.io.File;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -40,22 +41,30 @@ public class GeotaggedScreenshots implements ClientModInitializer {
         }
 
         String newWorldId = processor.getMapWorld().toString();
-        if (ALBUM != null && ALBUM.getId().equals(newWorldId)) {
-            return;
-        }
-
         WaypointSet screenshotSet = XaeroWaypointUtil.getScreenshotWaypointSet();
         if (screenshotSet == null) {
             return;
         }
 
-        if (ALBUM != null) {
-            ALBUM.getScreenshots().forEach(GeotaggedScreenshot::close);
+        if (ALBUM == null || !ALBUM.getId().equals(newWorldId)) {
+            if (ALBUM != null) {
+                ALBUM.getScreenshots().forEach(GeotaggedScreenshot::close);
+            }
+
+            ALBUM = new WorldScreenshotAlbum(newWorldId);
         }
 
-        ALBUM = new WorldScreenshotAlbum(newWorldId);
-        screenshotSet.getWaypoints().forEach(waypoint -> ALBUM.add(new GeotaggedScreenshot(waypoint.getName())));
-        regenerateMissingThumbnails();
+        int discovered = 0;
+        for (var waypoint : screenshotSet.getWaypoints()) {
+            if (ALBUM.getScreenshot(waypoint.getName()) == null) {
+                ALBUM.add(new GeotaggedScreenshot(waypoint.getName()));
+                discovered++;
+            }
+        }
+
+        if (discovered > 0) {
+            regenerateMissingThumbnails();
+        }
     }
 
     private static void regenerateMissingThumbnails() {
@@ -74,22 +83,30 @@ public class GeotaggedScreenshots implements ClientModInitializer {
 
         for (GeotaggedScreenshot screenshot : missing) {
             EXECUTOR.submit(() -> {
-                CompletableFuture<NativeImage> future = screenshot.getImageFuture(ImageType.ORIGINAL);
-                if (future == null) {
-                    return;
+                File originalFile = screenshot.getFile(ImageType.ORIGINAL);
+                File thumbnailFile = null;
+                try {
+                    NativeImage image = ImageUtil.loadImage(originalFile).join();
+                    if (image != null) {
+                        try (image) {
+                            thumbnailFile = ImageUtil.createThumbnail(image, originalFile);
+                        }
+                    }
+                } catch (Exception e) {
+                    LogUtils.getLogger().error("Couldn't regenerate thumbnail for {}", originalFile, e);
                 }
 
-                NativeImage image = future.join();
-                if (image == null) {
-                    return;
-                }
+                File generatedThumbnail = thumbnailFile;
+                Minecraft.getInstance().execute(() -> {
+                    if (generatedThumbnail != null && generatedThumbnail.isFile()) {
+                        screenshot.setFile(ImageType.THUMBNAIL, generatedThumbnail);
+                        screenshot.getImageFuture(ImageType.THUMBNAIL);
+                    }
 
-                screenshot.setFile(ImageType.THUMBNAIL, ImageUtil.createThumbnail(image, screenshot.getFile(ImageType.ORIGINAL)));
-                screenshot.close(ImageType.ORIGINAL);
-
-                if (completed.incrementAndGet() == missing.size()) {
-                    displayMessage("completed_thumbnail_regeneration", missing.size());
-                }
+                    if (completed.incrementAndGet() == missing.size()) {
+                        displayMessage("completed_thumbnail_regeneration", missing.size());
+                    }
+                });
             });
         }
     }
@@ -101,7 +118,7 @@ public class GeotaggedScreenshots implements ClientModInitializer {
 
         Minecraft.getInstance().execute(() -> {
             if (Minecraft.getInstance().player != null) {
-                Minecraft.getInstance().player.displayClientMessage(Component.translatable("message.geotagged_screenshots." + key, count), false);
+                Minecraft.getInstance().player.displayClientMessage(Component.translatable("message." + ModConstants.MODID + "." + key, count), false);
             }
         });
     }
