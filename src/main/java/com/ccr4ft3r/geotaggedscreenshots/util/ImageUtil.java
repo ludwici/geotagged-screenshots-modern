@@ -16,7 +16,7 @@ import static com.ccr4ft3r.geotaggedscreenshots.ModConstants.THUMBNAIL_DIR;
 
 public class ImageUtil {
     public static File saveScreenshot(NativeImage image, File requestedFile, boolean jpeg) throws IOException {
-        File output = jpeg ? getUniqueJpegFile(requestedFile) : requestedFile;
+        File output = getUniqueFile(requestedFile, jpeg ? ".jpg" : ".png");
         Files.createDirectories(output.toPath().getParent());
 
         if (jpeg) {
@@ -35,17 +35,18 @@ public class ImageUtil {
         return output;
     }
 
-    private static File getUniqueJpegFile(File requestedFile) {
+    private static File getUniqueFile(File requestedFile, String extension) {
         String name = requestedFile.getName().replaceFirst("\\.[^.]+$", "");
         File parent = requestedFile.getParentFile();
-        File target = new File(parent, name + ".jpg");
+        String otherExtension = ".jpg".equals(extension) ? ".png" : ".jpg";
+        String candidate = name;
         int index = 1;
 
-        while (target.exists()) {
-            target = new File(parent, name + "_" + index++ + ".jpg");
+        while (new File(parent, candidate + extension).exists() || new File(parent, candidate + otherExtension).exists()) {
+            candidate = name + "_" + index++;
         }
 
-        return target;
+        return new File(parent, candidate + extension);
     }
 
     public static File createThumbnail(NativeImage original, File target) {
