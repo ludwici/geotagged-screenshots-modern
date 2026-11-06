@@ -1,0 +1,59 @@
+tasks.register('inspectXaero') {
+    doLast {
+        def jars = configurations.compileClasspath.resolve().findAll { it.name.toLowerCase().contains('xaero') && it.name.endsWith('.jar') }
+        println("XAERO_JAR_COUNT " + jars.size())
+        jars.each { file ->
+            println("XAERO_JAR " + file.getName())
+            def zip = new java.util.zip.ZipFile(file)
+            try {
+                def classes = zip.entries().findAll { e ->
+                    !e.directory && e.name.endsWith('.class') && (
+                        e.name.contains('/waypoint/') ||
+                        e.name.contains('/waypoints/') ||
+                        e.name.contains('/element/') ||
+                        e.name.endsWith('/GuiMap.class') ||
+                        e.name.endsWith('/SupportXaeroMinimap.class')
+                    )
+                }.collect { it.name }.sort()
+                classes.findAll { s ->
+                    (s.contains('waypoint') || s.contains('Waypoint')) &&
+                    (s.contains('Render') || s.contains('Icon') || s.contains('Symbol') || s.contains('Element') || s.endsWith('/Waypoint.class'))
+                }.take(180).each { println("XAERO_CLASS " + it) }
+                def exact = [
+                    'xaero.map.mods.gui.WaypointRenderer',
+                    'xaero.map.mods.gui.Waypoint',
+                    'xaero.map.mods.gui.WaypointRenderContext',
+                    'xaero.map.element.MapElementRenderer',
+                    'xaero.map.element.MapElementReader',
+                    'xaero.map.element.MapElementRenderProvider',
+                    'xaero.map.element.render.ElementRenderInfo',
+                    'xaero.map.gui.GuiMap',
+                    'xaero.hud.minimap.waypoint.render.WaypointRenderer',
+                    'xaero.hud.minimap.waypoint.render.WaypointIconRenderer',
+                    'xaero.hud.minimap.waypoint.render.WaypointRenderContext',
+                    'xaero.hud.minimap.waypoint.WaypointRenderer',
+                    'xaero.common.minimap.render.MinimapRenderer',
+                    'xaero.common.minimap.waypoints.Waypoint',
+                    'xaero.map.mods.SupportXaeroMinimap'
+                ]
+                def additional = classes.findAll { s ->
+                    s.endsWith('WaypointRenderer.class') ||
+                    s.endsWith('WaypointIconRenderer.class') ||
+                    (s.contains('/element/') && (s.endsWith('MapElementRenderInfo.class') || s.endsWith('MapElementRenderLocation.class')))
+                }.collect { it.replace('.class', '').replace('/', '.') }
+                (exact + additional).unique().each { clazz ->
+                    if (zip.getEntry(clazz.replace('.', '/') + '.class') != null) {
+                        def process = new ProcessBuilder('javap','-classpath',file.absolutePath,'-private',clazz).redirectErrorStream(true).start()
+                        def result = process.inputStream.text.readLines()
+                        process.waitFor()
+                        println("XAERO_JAVAP " + clazz)
+                        result.take(135).each { println(it) }
+                        println("XAERO_JAVAP_END " + clazz)
+                    }
+                }
+            } finally {
+                zip.close()
+            }
+        }
+    }
+}
