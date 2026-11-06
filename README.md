@@ -1,69 +1,55 @@
 # Geotagged Screenshots Modern
 
-A maintained **client-side** fork of [Geotagged Screenshots](https://github.com/CCr4ft3r/geotagged-screenshots), originally created by **CCr4ft3r** and maintained/ported by **[ludwici](https://github.com/ludwici)**.
+Originally created by **[CCr4ft3r](https://github.com/CCr4ft3r/geotagged-screenshots)**. This is a **modernized fork maintained by [ludwici](https://github.com/ludwici)**, focused on supporting newer Minecraft versions and keeping the mod compatible with current releases.
 
-Screenshots become location-linked waypoints in Xaero's World Map and Minimap, so you can revisit places and view saved images from the map.
+![versions](https://cf.way2muchnoise.eu/versions/1787408.svg)
 
-**Branch:** `26.1.2-fabric` · **Minecraft:** `26.1.2` · **Platform:** Fabric · **Environment:** Client only
+![neoforge](https://github.com/thomasglasser/thomasglasser/blob/main/files/badges/cozy/supported/neoforge_64h.png?raw=true) ![fabric](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/supported/fabric_64h.png)
+
+[![patreon-singular](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/donate/patreon-singular_64h.png)](https://www.patreon.com/ludwici) [![kofi-singular](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/donate/kofi-singular-alt_64h.png)](https://ko-fi.com/ludwici)
+
+## About
+
+Minecraft usually saves screenshots as files without an easy way to find the location where they were taken. Geotagged Screenshots links your screenshots to waypoints in **Xaero's World Map** and **Xaero's Minimap**, letting you revisit memorable places.
+
+![Screenshot preview](https://i.imgur.com/KabmXSc.png)
 
 ## Features
 
-- Save screenshots as PNG or JPEG (configurable).
-- Hide the HUD for a screenshot and restore the previous F1 state.
-- Create Xaero screenshot waypoints with thumbnails on World Map.
-- Open full-size screenshots from their markers in Xaero's World Map.
-- Recreate missing thumbnails from original screenshot files.
-- Configure waypoint sets and screenshot-related chat messages.
-
-## Requirements
-
-- Minecraft `26.1.2`
-- Fabric Loader `0.19.5`
-- Fabric API `0.155.3+26.1.2`
-- Xaero's World Map `1.47.2`
-- Xaero's Minimap `26.6.2`
-- Java 25
-
-Install this mod and its dependencies on the **client**. Dedicated servers do not need Geotagged Screenshots installed. This branch targets Minecraft 26.1.2; other versions have separate branches.
+- Save screenshots in PNG or JPEG format.
+- Temporarily hide the HUD when taking screenshots and restore your previous F1 state.
+- Automatically create screenshot waypoints in Xaero's maps.
+- Display screenshot thumbnails on Xaero's World Map.
+- Open full-size screenshots by clicking their waypoints on the world map.
+- Regenerate missing thumbnails from the original screenshots.
+- Customize waypoint sets and screenshot-related chat notifications.
 
 ## Configuration
 
-The client settings are stored in `config/geotagged_screenshots-client.json`.
+Settings are stored in the Minecraft `config` directory in `geotagged_screenshots-client.toml` (NeoForge) or `geotagged_screenshots-client.json` (Fabric).
 
 ## FAQ
 
-**I cannot see screenshots on Xaero's World Map.**
+**I can't see my screenshots on the world map. What should I check?**
 
-Check that screenshot waypoints are enabled and that the `Geotagged Screenshots` waypoint set is selected. An image needs its matching waypoint to appear on the map.
+Make sure screenshot waypoints are enabled and the `Geotagged Screenshots` waypoint set is selected in Xaero's map. Screenshots need their corresponding waypoints to appear.
 
-**Can I include this mod in a modpack?**
+**Can I include Geotagged Screenshots in my modpack?**
 
-Yes, subject to the LGPL-3.0 license and applicable copyright and attribution notices.
+Yes. Please follow the project's LGPL-3.0 license and retain the applicable copyright notices.
 
-**How do I report a bug or request a feature?**
+**Where can I report a bug or request a feature?**
 
-Open an issue in the [maintained fork's issue tracker](https://github.com/ludwici/geotagged-screenshots-modern/issues).
-
-## Building
-
-Use JDK 25 and run:
-
-```shell
-gradle clean build
-```
-
-GitHub Actions builds and tests the project and uploads the JAR artifact. In-game compatibility and Xaero interactions should also be verified on a client.
-
-## Credits and license
-
-- **Original author:** [CCr4ft3r — Geotagged Screenshots](https://github.com/CCr4ft3r/geotagged-screenshots)
-- **Maintainer of this fork:** [ludwici](https://github.com/ludwici/geotagged-screenshots-modern)
-- **License:** [GNU LGPL-3.0](LICENSE)
-
-This maintained fork updates the mod for newer Minecraft versions and adapts screenshot saving, previews, waypoints and client integrations. Original copyright notices and license obligations remain in effect.
+Use the [GitHub issue tracker](https://github.com/ludwici/geotagged-screenshots-modern/issues).
 
 ## Links
 
-- [Source code](https://github.com/ludwici/geotagged-screenshots-modern)
-- [Issues and feature requests](https://github.com/ludwici/geotagged-screenshots-modern/issues)
-- [Original project](https://github.com/CCr4ft3r/geotagged-screenshots)
+[GitHub repository](https://github.com/ludwici/geotagged-screenshots-modern) · [Issues and feature requests](https://github.com/ludwici/geotagged-screenshots-modern/issues) · [Original mod](https://github.com/CCr4ft3r/geotagged-screenshots)
+
+## My modpacks:
+
+[![cobblewatch](https://i.postimg.cc/kg0VTRKw/Untitled-125.jpg)](https://www.curseforge.com/minecraft/modpacks/cobblewatch)
+
+## Check my other mods:
+
+[![carpet-variants](https://i.imgur.com/G1XpmL4.png)](https://www.curseforge.com/minecraft/mc-mods/carpet-variants) [![copper-deco](https://i.postimg.cc/8c2kJqYK/copperdeco125.png)](https://www.curseforge.com/minecraft/mc-mods/copper-deco) [![mob-loot-variants](https://i.imgur.com/n1X16BM.png)](https://www.curseforge.com/minecraft/mc-mods/mob-loot-variants) [![better-block-sounds-fork](https://i.imgur.com/epM9STT.png)](https://www.curseforge.com/minecraft/mc-mods/better-block-sounds-fork) [![slime-overhaul](https://i.postimg.cc/7LPXcWkr/so-logo-mini.png)](https://www.curseforge.com/minecraft/mc-mods/slime-overhaul) [![polyglot](https://i.postimg.cc/d3RCh0RZ/polyglot-mini.jpg)](https://www.curseforge.com/minecraft/mc-mods/polyglot) [![weapon-mastery](https://i.postimg.cc/C1fM4HHC/WM125.jpg)](https://www.curseforge.com/hytale/mods/weapon-mastery) [![bigwater](https://i.postimg.cc/NMB0gG5S/icon.png)](https://www.curseforge.com/minecraft/mc-mods/big-water) [![tooltipfixmodern](https://i.postimg.cc/6qSwj7h9/637375641204961499.jpg)](https://www.curseforge.com/minecraft/mc-mods/tooltipfix-modern) [![cobblemon-raid-den-icons](https://i.postimg.cc/fywpGqft/cri.png)](https://www.curseforge.com/minecraft/mc-mods/cobblemon-raid-den-icons) [![cobblemon-pokedex-network](https://i.postimg.cc/pLhfzVGZ/cpn.png)](https://www.curseforge.com/minecraft/mc-mods/cobblemon-pokedex-network) [![cobblemon-streamer-mode](https://i.postimg.cc/8zX55R0Q/csm.png)](https://www.curseforge.com/minecraft/mc-mods/cobblemon-streamer-mode)
