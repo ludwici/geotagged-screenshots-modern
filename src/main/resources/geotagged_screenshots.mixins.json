@@ -5,7 +5,6 @@
   "compatibilityLevel": "JAVA_25",
   "client": [
     "ScreenshotMixin",
-    "xaero.SupportXaeroMinimapAccessor",
     "xaero.WaypointRendererMixin"
   ],
   "injectors": {
