@@ -5,7 +5,9 @@
   "compatibilityLevel": "JAVA_25",
   "client": [
     "ScreenshotMixin",
-    "xaero.WaypointRendererMixin"
+    "xaero.WaypointRendererMixin",
+    "xaero.WaypointReaderMixin",
+    "xaero.WaypointMapRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1
