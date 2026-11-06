@@ -26,7 +26,6 @@ public class ScreenshotView extends Screen {
     public ScreenshotView(GeotaggedScreenshot screenshot, Vec3 coordinates, Screen parent) {
         super(Component.empty());
         this.screenshot = screenshot;
-        this.missingMessage = "Couldn't find screenshot for: " + coordinates;
         this.parent = parent;
         this.closeButton = Button.builder(CommonComponents.GUI_DONE, button -> onClose())
                 .bounds(0, 0, BUTTON_WIDTH, BUTTON_HEIGHT).build();
