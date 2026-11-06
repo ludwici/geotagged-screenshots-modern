@@ -66,20 +66,20 @@ public final class ScreenshotCapture {
         }
     }
 
-    public static boolean capture(File gameDirectory, String screenshotName, RenderTarget renderTarget, Consumer<Component> messageConsumer) {
+    public static boolean capture(File gameDirectory, String screenshotName, RenderTarget renderTarget, int screenshotScale, Consumer<Component> messageConsumer) {
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.player == null || minecraft.level == null) {
             return false;
         }
 
-        NativeImage image = Screenshot.takeScreenshot(renderTarget);
+
         Vec3 position = minecraft.player.position();
         Level sourceLevel = minecraft.level;
         File screenshotDirectory = new File(gameDirectory, "screenshots");
         String name = screenshotName != null ? new File(screenshotName).getName() : new SimpleDateFormat("yyyy-MM-dd_HH.mm.ss", Locale.ROOT).format(new Date());
         File requestedFile = new File(screenshotDirectory, name.endsWith(".png") ? name : name + ".png");
 
-        GeotaggedScreenshots.EXECUTOR.execute(() -> {
+        Screenshot.takeScreenshot(renderTarget, screenshotScale, image -> GeotaggedScreenshots.EXECUTOR.execute(() -> {
             try (image) {
                 File screenshotFile = ImageUtil.saveScreenshot(image, requestedFile, ClientConfig.CONFIG_DATA.useJpgForScreenshots);
                 File thumbnailFile = ImageUtil.createThumbnail(image, screenshotFile);
@@ -95,7 +95,7 @@ public final class ScreenshotCapture {
 
                     if (!ClientConfig.CONFIG_DATA.disableScreenshotChatMessage) {
                         Component fileLink = Component.literal(screenshotFile.getName()).withStyle(style ->
-                                style.withUnderlined(true).withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_FILE, screenshotFile.getAbsolutePath())));
+                                style.withUnderlined(true).withClickEvent(new ClickEvent.OpenFile(screenshotFile.toPath())));
                         messageConsumer.accept(Component.translatable("screenshot.success", fileLink));
                     }
                 });
@@ -103,7 +103,7 @@ public final class ScreenshotCapture {
                 LogUtils.getLogger().error("Couldn't save geotagged screenshot", e);
                 minecraft.execute(() -> messageConsumer.accept(Component.translatable("screenshot.failure", e.getMessage())));
             }
-        });
+        }));
 
         return true;
     }

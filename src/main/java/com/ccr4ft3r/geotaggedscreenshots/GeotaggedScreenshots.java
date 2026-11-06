@@ -101,7 +101,7 @@ public class GeotaggedScreenshots implements ClientModInitializer {
 
         Minecraft.getInstance().execute(() -> {
             if (Minecraft.getInstance().player != null) {
-                Minecraft.getInstance().player.displayClientMessage(Component.translatable("message.geotagged_screenshots." + key, count), false);
+                Minecraft.getInstance().gui.getChat().addMessage(Component.translatable("message.geotagged_screenshots." + key, count));
             }
         });
     }

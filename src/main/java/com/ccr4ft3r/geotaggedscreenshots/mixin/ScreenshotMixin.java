@@ -21,9 +21,9 @@ public abstract class ScreenshotMixin {
         }
     }
 
-    @Inject(method = "_grab", at = @At("HEAD"), cancellable = true)
-    private static void geotagged_screenshots$save(File gameDirectory, String filename, RenderTarget target, Consumer<Component> messageConsumer, CallbackInfo ci) {
-        if (ScreenshotCapture.capture(gameDirectory, filename, target, messageConsumer)) {
+    @Inject(method = "grab(Ljava/io/File;Ljava/lang/String;Lcom/mojang/blaze3d/pipeline/RenderTarget;ILjava/util/function/Consumer;)V", at = @At("HEAD"), cancellable = true)
+    private static void geotagged_screenshots$save(File gameDirectory, String filename, RenderTarget target, int screenshotScale, Consumer<Component> messageConsumer, CallbackInfo ci) {
+        if (ScreenshotCapture.capture(gameDirectory, filename, target, screenshotScale, messageConsumer)) {
             ci.cancel();
         }
     }
