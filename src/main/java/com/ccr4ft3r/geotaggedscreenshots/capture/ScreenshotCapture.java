@@ -34,13 +34,15 @@ public final class ScreenshotCapture {
 
     public static boolean intercept(File gameDirectory, RenderTarget renderTarget, Consumer<Component> messageConsumer) {
         Minecraft minecraft = Minecraft.getInstance();
-        if (capturing || minecraft.level == null || minecraft.screen != null || !ClientConfig.CONFIG_DATA.hideUiAtTakingScreenshots) {
+        if (capturing || minecraft.level == null || minecraft.gui.screen() != null || !ClientConfig.CONFIG_DATA.hideUiAtTakingScreenshots) {
             return false;
         }
 
         if (REQUESTS.isEmpty()) {
-            previousHideGui = minecraft.options.hideGui;
-            minecraft.options.hideGui = true;
+            previousHideGui = minecraft.gui.hud.isHidden();
+            if (!previousHideGui) {
+                minecraft.gui.hud.toggle();
+            }
         }
 
         REQUESTS.add(new Request(gameDirectory, renderTarget, messageConsumer));
@@ -62,7 +64,9 @@ public final class ScreenshotCapture {
             }
         } finally {
             capturing = false;
-            Minecraft.getInstance().options.hideGui = previousHideGui;
+            if (Minecraft.getInstance().gui.hud.isHidden() != previousHideGui) {
+                Minecraft.getInstance().gui.hud.toggle();
+            }
         }
     }
 

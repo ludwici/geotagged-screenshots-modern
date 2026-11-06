@@ -9,9 +9,11 @@ import com.ccr4ft3r.geotaggedscreenshots.util.xaero.XaeroWaypointUtil;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.logging.LogUtils;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import xaero.hud.minimap.waypoint.set.WaypointSet;
+import xaero.map.gui.GuiMap;
 import xaero.map.core.XaeroWorldMapCore;
 
 import java.util.List;
@@ -27,6 +29,11 @@ public class GeotaggedScreenshots implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         ClientConfig.load();
+        ScreenEvents.AFTER_INIT.register((client, screen, scaledWidth, scaledHeight) -> {
+            if (screen instanceof GuiMap) {
+                client.execute(GeotaggedScreenshots::load);
+            }
+        });
     }
 
     public static void load() {
@@ -101,7 +108,7 @@ public class GeotaggedScreenshots implements ClientModInitializer {
 
         Minecraft.getInstance().execute(() -> {
             if (Minecraft.getInstance().player != null) {
-                Minecraft.getInstance().gui.getChat().addClientSystemMessage(Component.translatable("message.geotagged_screenshots." + key, count));
+                Minecraft.getInstance().player.sendSystemMessage(Component.translatable("message.geotagged_screenshots." + key, count));
             }
         });
     }
