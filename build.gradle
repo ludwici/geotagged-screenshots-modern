@@ -53,3 +53,5 @@ tasks.withType(Test).configureEach {
 }
 
 
+
+apply from: 'inspectXaero.gradle'

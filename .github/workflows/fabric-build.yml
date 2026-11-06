@@ -23,6 +23,8 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '9.7.0'
+      - name: Inspect Xaero API
+        run: gradle inspectXaero --no-daemon
       - name: Build Fabric mod and run tests
         run: gradle clean build --no-daemon --stacktrace
       - name: Upload Fabric JAR
