@@ -1,14 +1,13 @@
 plugins {
-    id 'java-library'
-    id 'net.neoforged.moddev' version '2.0.141'
-    id 'idea'
+    id 'net.fabricmc.fabric-loom-remap' version "${loom_version}"
+    id 'java'
 }
 
-version = mod_version
-group = mod_group_id
+version = project.mod_version
+group = project.mod_group_id
 
 base {
-    archivesName = "${mod_id}-neoforge"
+    archivesName = "${project.mod_id}-fabric"
 }
 
 repositories {
@@ -16,68 +15,40 @@ repositories {
         name = "Xaero's Maven"
         url = 'https://chocolateminecraft.com/maven'
     }
-}
-
-java.toolchain.languageVersion = JavaLanguageVersion.of(21)
-
-neoForge {
-    version = project.neo_version
-
-    parchment {
-        mappingsVersion = project.parchment_mappings_version
-        minecraftVersion = project.parchment_minecraft_version
-    }
-
-    runs {
-        client {
-            client()
-        }
-    }
-
-    mods {
-        "${mod_id}" {
-            sourceSet(sourceSets.main)
-        }
-    }
+    mavenCentral()
 }
 
 dependencies {
-    compileOnly "xaero.map:xaeroworldmap-neoforge-$rootProject.xaero_map_version"
-    compileOnly "xaero.minimap:xaerominimap-neoforge-$rootProject.xaero_minimap_version"
+    minecraft "com.mojang:minecraft:${minecraft_version}"
+    mappings loom.officialMojangMappings()
 
-    runtimeOnly "xaero.map:xaeroworldmap-neoforge-$rootProject.xaero_map_version"
-    runtimeOnly "xaero.minimap:xaerominimap-neoforge-$rootProject.xaero_minimap_version"
+    modImplementation "net.fabricmc:fabric-loader:${loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
+
+    modImplementation "xaero.map:xaeroworldmap-fabric-${xaero_map_version}"
+    modImplementation "xaero.minimap:xaerominimap-fabric-${xaero_minimap_version}"
 
     testImplementation "org.junit.jupiter:junit-jupiter:5.11.4"
     testRuntimeOnly "org.junit.platform:junit-platform-launcher"
 }
 
-var generateModMetadata = tasks.register('generateModMetadata', ProcessResources) {
-    var replaceProperties = [
-            minecraft_version_range: minecraft_version_range,
-            neo_version: neo_version,
-            loader_version_range: loader_version_range,
-            mod_id: mod_id,
-            mod_name: mod_name,
-            mod_license: mod_license,
-            mod_version: mod_version,
-            mod_authors: mod_authors,
-            mod_description: mod_description
-    ]
-
-    inputs.properties replaceProperties
-    expand replaceProperties
-    from 'src/main/templates'
-    into 'build/generated/sources/modMetadata'
+processResources {
+    inputs.property "version", project.version
+    filesMatching("fabric.mod.json") {
+        expand "version": project.version
+    }
 }
 
-sourceSets.main.resources.srcDir generateModMetadata
-neoForge.ideSyncTask generateModMetadata
-
-tasks.withType(Test).configureEach {
-    useJUnitPlatform()
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
 }
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
+    options.release = 21
+}
+
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
 }

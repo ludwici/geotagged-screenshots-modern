@@ -1,58 +1,42 @@
-### Ever wanted to make memorable memories memorizable? Give this mod a shot.
+# Geotagged Screenshots Modern — Fabric 1.21.1
 
-## 📜 Motivation
-Minecraft saves all taken screenshots inside a single folder without context information. Making it difficult if you are looking for specific screenshots of a certain world or a special place.
-This can be improved so that players can take an imaginary journey back to visited places.
+A client-side Minecraft mod that places screenshot waypoints in **Xaero's Minimap** and shows image previews in **Xaero's World Map**.
 
-## 💡 About
-Whenever you create a new screenshot in Minecraft this mods adds various information about your **in-game** location to the screenshot files.\
-In addition to that it also creates new waypoints to Xaero's World Map and Minimap to the exact same locations in a separate waypoint set: Geotagged Screenshots
+This branch targets **Minecraft 1.21.1 with Fabric** exclusively. The NeoForge port is maintained separately in the `1.21.1-neo` branch.
 
-These two pieces of information are being used to render the screenshots in Xaero's World Map. \
-All of these can be viewed in a full screen viewer by left-clicking it.\
-Both mods, Xaero's World Map and Minimap, are required dependencies.
+## Dependencies
 
-<img src="https://i.imgur.com/KabmXSc.png" alt="comparison" width="1133" height="637" />
+- Fabric Loader 0.19.3
+- Fabric API 0.116.13+1.21.1
+- Xaero's World Map 1.44.2 for Fabric
+- Xaero's Minimap 26.4.2 for Fabric
+- Java 21
 
-## ⚙️ How does it work?
-Geotagged Screenshots currently adds the following metadata to newly created screenshots:
-- a generated screenshot identifier
-- a generated identifier of the world in which the screenshot was taken
-- player coordinates at the time of creation
-- dimension-id at the time of creation
+The versions are aligned with the Fabric branch of [CobblemonRaidDenIcons](https://github.com/ludwici/CobblemonRaidDenIcons/tree/fabric).
 
-Furthermore it creates a separate directory for thumbnails (each file includes the same metadata as the original one). These thumbnails are used to display them in the world map. Screenshots will only be loaded for the fullscreen viewer.
+## Features
 
+- Capture PNG or real JPEG screenshots (JPEG quality 92%).
+- Automatically hide HUD while capturing and restore the F1 state.
+- Create image thumbnails and screenshot waypoints.
+- Open screenshots from the Xaero World Map waypoint marker.
+- Recreate missing thumbnails from their original screenshots.
+- Disable screenshot success chat messages.
 
-## ❗ Important Notes
-- This mod has been tested carefully. However it is still in beta. Please report any bugs you are facing.
-- This project is not associated neither officially supported by Xaero's World Map/Minimap.
-- Geotagged Screenshots tries to be as less invasive as possible. However it needed to achieve compatbility with Xaero's World Map und Minimap by itself. Before reporting any bugs to Xaero make sure the bug is still happen without Geotagged Screenshots installed. Otherwise report it to me.
-- Removing a screenshots waypoint will make the screenshot dissapear from the world map.
+## Configuration
 
+The client configuration file is automatically generated at `config/geotagged_screenshots-client.json` on launch. Restart the client after editing it.
 
-## 🔭 Limitations and Roadmap
-- Currently world backups needs to include the thumbnails directory since they are not recreated. This will be improved in future.
-- Location metadata is only added to newly created screenshots. Enriching existing ones will be added in the future.
-- A proper config file is work in progress
+## Build
 
-## 📝 FAQ
-Q: I cannot see my created screenshots in the world map. \
-A: Make sure to select the waypoint set "Geotagged Screenshots".
+Use Gradle 9.5.1 and JDK 21:
 
-Q: Can I use Geotagged Screenshots in my modpack?\
-A: Yes -  Feel free to include it - Remember to give credit and don't claim it as your own creation.
+```bash
+gradle clean build
+```
 
-Q: Are you going to create or support a Fabric version?\
-A: No. But every other dev is allowed to do so under the given conditions of the license.
+The GitHub Actions workflow builds the Fabric JAR and runs unit tests on pushes to `1.21.1-fabric`.
 
-Q: Can you add ...?\
-A: Please create a feature request on GitHub.
+## Status
 
-
-## 🔨 ModLoader
-This mod is only available for Forge. Support for NeoForge will be added with the next major release at the earliest.
-
-
-## 🌎 Links
-[Report issues and request features](https://github.com/CCr4ft3r/geotagged-screenshots/issues)
+Successful compilation does not replace in-game verification. Test screenshot capture, waypoint creation, preview clicks, JPEG reopening, and F1 state restoration in a Fabric 1.21.1 client.

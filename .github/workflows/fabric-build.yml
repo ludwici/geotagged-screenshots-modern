@@ -1,12 +1,12 @@
-name: NeoForge 1.21.1 Build
+name: Fabric 1.21.1 Build
 
 on:
   push:
     branches:
-      - 1.21.1-neo
+      - 1.21.1-fabric
   pull_request:
     branches:
-      - 1.21.1-neo
+      - 1.21.1-fabric
   workflow_dispatch:
 
 jobs:
@@ -22,13 +22,13 @@ jobs:
           java-version: '21'
       - uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: '9.2.1'
-      - name: Build NeoForge mod
+          gradle-version: '9.5.1'
+      - name: Build Fabric mod and run tests
         run: gradle clean build --no-daemon --stacktrace
-      - name: Upload mod jar
+      - name: Upload Fabric JAR
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: geotagged-screenshots-1.21.1-neoforge
-          path: build/libs/*.jar
+          name: geotagged-screenshots-1.21.1-fabric
+          path: build/libs/*-fabric-*.jar
           if-no-files-found: error

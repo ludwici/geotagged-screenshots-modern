@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "id": "geotagged_screenshots",
+  "version": "${version}",
+  "name": "Geotagged Screenshots",
+  "description": "Creates screenshot waypoints and previews in Xaero's World Map",
+  "authors": [
+    "CCr4ft3r"
+  ],
+  "contact": {
+    "sources": "https://github.com/ludwici/geotagged-screenshots-modern"
+  },
+  "license": "LGPL-3.0",
+  "icon": "logo.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "com.ccr4ft3r.geotaggedscreenshots.GeotaggedScreenshots"
+    ]
+  },
+  "mixins": [
+    "geotagged_screenshots.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.19.3",
+    "minecraft": "1.21.1",
+    "java": ">=21",
+    "fabric-api": "*",
+    "xaeroworldmap": ">=1.44.2",
+    "xaerominimap": ">=26.4.2"
+  }
+}

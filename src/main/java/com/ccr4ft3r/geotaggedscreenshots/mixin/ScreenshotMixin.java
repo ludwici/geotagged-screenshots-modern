@@ -15,8 +15,15 @@ import java.util.function.Consumer;
 @Mixin(Screenshot.class)
 public abstract class ScreenshotMixin {
     @Inject(method = "grab(Ljava/io/File;Lcom/mojang/blaze3d/pipeline/RenderTarget;Ljava/util/function/Consumer;)V", at = @At("HEAD"), cancellable = true)
-    private static void geotagged_screenshots$captureWithoutHud(File gameDirectory, RenderTarget target, Consumer<Component> messageConsumer, CallbackInfo ci) {
+    private static void geotagged_screenshots$hideHud(File gameDirectory, RenderTarget target, Consumer<Component> messageConsumer, CallbackInfo ci) {
         if (ScreenshotCapture.intercept(gameDirectory, target, messageConsumer)) {
+            ci.cancel();
+        }
+    }
+
+    @Inject(method = "_grab", at = @At("HEAD"), cancellable = true)
+    private static void geotagged_screenshots$save(File gameDirectory, String filename, RenderTarget target, Consumer<Component> messageConsumer, CallbackInfo ci) {
+        if (ScreenshotCapture.capture(gameDirectory, filename, target, messageConsumer)) {
             ci.cancel();
         }
     }
