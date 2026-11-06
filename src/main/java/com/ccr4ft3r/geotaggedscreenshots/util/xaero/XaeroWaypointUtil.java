@@ -10,7 +10,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import xaero.common.minimap.waypoints.Waypoint;
-import xaero.common.minimap.waypoints.WaypointSet;
+import xaero.hud.minimap.waypoint.set.WaypointSet;
 import xaero.common.minimap.waypoints.WaypointWorld;
 import xaero.hud.minimap.waypoint.WaypointColor;
 import xaero.map.MapProcessor;

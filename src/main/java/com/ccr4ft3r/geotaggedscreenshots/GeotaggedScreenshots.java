@@ -19,7 +19,7 @@ import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.client.event.ScreenEvent;
 import net.neoforged.neoforge.client.event.ScreenshotEvent;
 import net.neoforged.neoforge.common.NeoForge;
-import xaero.common.minimap.waypoints.WaypointSet;
+import xaero.hud.minimap.waypoint.set.WaypointSet;
 import xaero.map.core.XaeroWorldMapCore;
 import xaero.map.gui.GuiMap;
 
@@ -63,7 +63,7 @@ public class GeotaggedScreenshots {
 
         minecraft.execute(() -> {
             load();
-            if (ALBUM != null && screenshotFile.exists()) {
+            if (ALBUM != null) {
                 XaeroWaypointUtil.addNewScreenshotWaypoint(position, screenshotFile, thumbnailFile);
             }
         });
