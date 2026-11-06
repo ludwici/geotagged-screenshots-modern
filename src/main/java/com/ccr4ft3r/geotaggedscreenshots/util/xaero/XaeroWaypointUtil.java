@@ -3,7 +3,6 @@ package com.ccr4ft3r.geotaggedscreenshots.util.xaero;
 import com.ccr4ft3r.geotaggedscreenshots.GeotaggedScreenshots;
 import com.ccr4ft3r.geotaggedscreenshots.container.GeotaggedScreenshot;
 import com.ccr4ft3r.geotaggedscreenshots.container.ImageType;
-import com.ccr4ft3r.geotaggedscreenshots.mixin.xaero.SupportXaeroMinimapAccessor;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceKey;
@@ -11,7 +10,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import xaero.common.minimap.waypoints.Waypoint;
 import xaero.hud.minimap.waypoint.set.WaypointSet;
-import xaero.common.minimap.waypoints.WaypointWorld;
+import xaero.hud.minimap.world.MinimapWorld;
 import xaero.hud.minimap.waypoint.WaypointColor;
 import xaero.map.MapProcessor;
 import xaero.map.WorldMapSession;
@@ -46,12 +45,12 @@ public class XaeroWaypointUtil {
             return null;
         }
 
-        SupportXaeroMinimapAccessor minimap = (SupportXaeroMinimapAccessor) SupportMods.xaeroMinimap;
-        if (minimap.waypointWorld() == null) {
+        MinimapWorld world = SupportMods.xaeroMinimap.getWaypointWorld();
+        if (world == null) {
             initWaypoints();
+            world = SupportMods.xaeroMinimap.getWaypointWorld();
         }
 
-        WaypointWorld world = minimap.waypointWorld();
         if (world == null) {
             return null;
         }

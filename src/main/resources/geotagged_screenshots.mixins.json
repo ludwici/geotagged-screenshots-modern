@@ -7,7 +7,6 @@
     "GameRendererMixin",
     "MinecraftMixin",
     "ScreenshotMixin",
-    "xaero.SupportXaeroMinimapAccessor",
     "xaero.WaypointRendererMixin"
   ],
   "injectors": {
