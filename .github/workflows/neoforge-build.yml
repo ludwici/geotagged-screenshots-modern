@@ -1,12 +1,12 @@
-name: NeoForge 26.1.2 Build
+name: NeoForge 26.2 Build
 
 on:
   push:
     branches:
-      - 26.1.2-neo
+      - 26.2-neo
   pull_request:
     branches:
-      - 26.1.2-neo
+      - 26.2-neo
   workflow_dispatch:
 
 jobs:
@@ -29,6 +29,6 @@ jobs:
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: geotagged-screenshots-26.1.2-neoforge
+          name: geotagged-screenshots-26.2-neoforge
           path: build/libs/*.jar
           if-no-files-found: error

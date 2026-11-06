@@ -31,13 +31,13 @@ side="CLIENT"
 [[dependencies.${mod_id}]]
 modId="xaeroworldmap"
 type="required"
-versionRange="[1.44.2,)"
+versionRange="[1.47.2,)"
 ordering="NONE"
 side="CLIENT"
 
 [[dependencies.${mod_id}]]
 modId="xaerominimap"
 type="required"
-versionRange="[26.4.2,)"
+versionRange="[26.6.2,)"
 ordering="NONE"
 side="CLIENT"
