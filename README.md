@@ -1,58 +1,38 @@
-### Ever wanted to make memorable memories memorizable? Give this mod a shot.
+# Geotagged Screenshots Modern — NeoForge 26.1.2
 
-## 📜 Motivation
-Minecraft saves all taken screenshots inside a single folder without context information. Making it difficult if you are looking for specific screenshots of a certain world or a special place.
-This can be improved so that players can take an imaginary journey back to visited places.
+A client-side mod for Minecraft **26.1.2** that creates screenshot waypoints and displays screenshot previews inside Xaero's World Map.
 
-## 💡 About
-Whenever you create a new screenshot in Minecraft this mods adds various information about your **in-game** location to the screenshot files.\
-In addition to that it also creates new waypoints to Xaero's World Map and Minimap to the exact same locations in a separate waypoint set: Geotagged Screenshots
+This branch targets **NeoForge** and Minecraft **26.1.2**. The 26.1 and 26.1.1 clients are not declared compatible: the selected Xaero and loader dependencies have only been built and checked against 26.1.2. This branch is separate from the Minecraft 1.21.1 branches.
 
-These two pieces of information are being used to render the screenshots in Xaero's World Map. \
-All of these can be viewed in a full screen viewer by left-clicking it.\
-Both mods, Xaero's World Map and Minimap, are required dependencies.
+## Requirements
 
-<img src="https://i.imgur.com/KabmXSc.png" alt="comparison" width="1133" height="637" />
+- Minecraft 26.1.2
+- Java 25
+- NeoForge 26.1.2.124
+- Xaero's World Map 1.47.2
+- Xaero's Minimap 26.6.2
 
-## ⚙️ How does it work?
-Geotagged Screenshots currently adds the following metadata to newly created screenshots:
-- a generated screenshot identifier
-- a generated identifier of the world in which the screenshot was taken
-- player coordinates at the time of creation
-- dimension-id at the time of creation
+## Features
 
-Furthermore it creates a separate directory for thumbnails (each file includes the same metadata as the original one). These thumbnails are used to display them in the world map. Screenshots will only be loaded for the fullscreen viewer.
+- Save original screenshots as PNG or JPEG (92% JPEG quality).
+- Temporarily hide the HUD during screenshots and restore its previous state.
+- Create Xaero waypoint markers with screenshot thumbnails.
+- View a screenshot at full size by selecting its marker in Xaero's World Map.
+- Recreate missing thumbnails from original screenshots.
+- Optional screenshot success messages and separate screenshot waypoint set.
 
+## Configuration
 
-## ❗ Important Notes
-- This mod has been tested carefully. However it is still in beta. Please report any bugs you are facing.
-- This project is not associated neither officially supported by Xaero's World Map/Minimap.
-- Geotagged Screenshots tries to be as less invasive as possible. However it needed to achieve compatbility with Xaero's World Map und Minimap by itself. Before reporting any bugs to Xaero make sure the bug is still happen without Geotagged Screenshots installed. Otherwise report it to me.
-- Removing a screenshots waypoint will make the screenshot dissapear from the world map.
+The client settings are stored in `config/geotagged_screenshots-client.toml`.
 
+## Building
 
-## 🔭 Limitations and Roadmap
-- Currently world backups needs to include the thumbnails directory since they are not recreated. This will be improved in future.
-- Location metadata is only added to newly created screenshots. Enriching existing ones will be added in the future.
-- A proper config file is work in progress
+Use JDK 25 and Gradle 9.5.1:
 
-## 📝 FAQ
-Q: I cannot see my created screenshots in the world map. \
-A: Make sure to select the waypoint set "Geotagged Screenshots".
+```shell
+gradle clean build
+```
 
-Q: Can I use Geotagged Screenshots in my modpack?\
-A: Yes -  Feel free to include it - Remember to give credit and don't claim it as your own creation.
+The `build` task runs the unit tests and creates the NeoForge JAR in `build/libs`. GitHub Actions builds and uploads it on pushes to `26.1.2-neo`.
 
-Q: Are you going to create or support a Fabric version?\
-A: No. But every other dev is allowed to do so under the given conditions of the license.
-
-Q: Can you add ...?\
-A: Please create a feature request on GitHub.
-
-
-## 🔨 ModLoader
-This mod is only available for Forge. Support for NeoForge will be added with the next major release at the earliest.
-
-
-## 🌎 Links
-[Report issues and request features](https://github.com/CCr4ft3r/geotagged-screenshots/issues)
+**Testing:** CI checks compilation and JPEG encoding. In-game behavior, map marker interactions, HUD restoration, and runtime mixin compatibility still require testing on an actual client with both Xaero mods.
