@@ -1,12 +1,12 @@
-name: NeoForge 1.21.1 Build
+name: NeoForge 26.1.2 Build
 
 on:
   push:
     branches:
-      - 1.21.1-neo
+      - 26.1.2-neo
   pull_request:
     branches:
-      - 1.21.1-neo
+      - 26.1.2-neo
   workflow_dispatch:
 
 jobs:
@@ -19,16 +19,16 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '21'
+          java-version: '25'
       - uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: '9.2.1'
+          gradle-version: '9.5.1'
       - name: Build NeoForge mod
         run: gradle clean build --no-daemon --stacktrace
       - name: Upload mod jar
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: geotagged-screenshots-1.21.1-neoforge
+          name: geotagged-screenshots-26.1.2-neoforge
           path: build/libs/*.jar
           if-no-files-found: error
