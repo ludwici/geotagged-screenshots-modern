@@ -4,7 +4,8 @@ import com.ccr4ft3r.geotaggedscreenshots.util.ImageUtil;
 import com.mojang.blaze3d.platform.NativeImage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.DynamicTexture;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
+import java.util.UUID;
 
 import java.io.File;
 import java.util.Arrays;
@@ -16,7 +17,7 @@ public class GeotaggedScreenshot {
     private final String name;
     private final Map<ImageType, File> fileByType = new EnumMap<>(ImageType.class);
     private final Map<ImageType, CompletableFuture<NativeImage>> futureByType = new EnumMap<>(ImageType.class);
-    private final Map<ImageType, ResourceLocation> textureByType = new EnumMap<>(ImageType.class);
+    private final Map<ImageType, Identifier> textureByType = new EnumMap<>(ImageType.class);
 
     public GeotaggedScreenshot(String name) {
         this.name = name;
@@ -49,8 +50,8 @@ public class GeotaggedScreenshot {
         });
     }
 
-    public ResourceLocation getId(ImageType type) {
-        ResourceLocation id = textureByType.get(type);
+    public Identifier getId(ImageType type) {
+        Identifier id = textureByType.get(type);
         if (id != null) {
             return id;
         }
@@ -65,7 +66,8 @@ public class GeotaggedScreenshot {
             return null;
         }
 
-        id = Minecraft.getInstance().getTextureManager().register("geotagged_" + type.name().toLowerCase(), new DynamicTexture(image));
+        id = Identifier.fromNamespaceAndPath("geotagged_screenshots", "images/" + UUID.randomUUID().toString());
+        Minecraft.getInstance().getTextureManager().register(id, new DynamicTexture(() -> "Geotagged " + type.name().toLowerCase(), image));
         textureByType.put(type, id);
         return id;
     }
@@ -75,7 +77,7 @@ public class GeotaggedScreenshot {
     }
 
     public void close(ImageType type) {
-        ResourceLocation id = textureByType.remove(type);
+        Identifier id = textureByType.remove(type);
         if (id != null) {
             Minecraft.getInstance().getTextureManager().release(id);
         }

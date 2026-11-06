@@ -2,6 +2,10 @@ tasks.register('inspectApi') {
     doLast {
         def classes = [
                 'net.minecraft.client.Screenshot',
+                'net.minecraft.client.input.KeyEvent',
+                'net.minecraft.client.renderer.RenderPipelines',
+                'net.minecraft.client.MouseHandler',
+                'com.mojang.blaze3d.platform.Window',
                 'net.minecraft.client.Minecraft',
                 'net.minecraft.client.gui.GuiGraphicsExtractor',
                 'net.minecraft.client.gui.screens.Screen',
@@ -11,6 +15,12 @@ tasks.register('inspectApi') {
                 'net.minecraft.resources.Identifier',
                 'com.mojang.blaze3d.platform.NativeImage',
                 'xaero.map.mods.gui.WaypointRenderer',
+                'xaero.map.element.MapElementGraphics',
+                'xaero.map.element.render.ElementRenderer',
+                'xaero.map.element.render.ElementRenderInfo',
+                'xaero.map.WorldMapSession',
+                'xaero.map.MapProcessor',
+                'xaero.hud.minimap.world.MinimapWorld',
                 'xaero.map.mods.gui.WaypointRenderContext',
                 'xaero.map.mods.gui.Waypoint',
                 'xaero.map.mods.SupportXaeroMinimap',
@@ -35,8 +45,8 @@ tasks.register('inspectApi') {
                 }
                 for (String clazz : classes) {
                     if (zip.getEntry(clazz.replace('.', '/') + '.class') != null) {
-                        def process = new ProcessBuilder('javap', '-classpath', f.absolutePath, '-public', clazz).redirectErrorStream(true).start()
-                        def output = process.inputStream.text.readLines().take(100).join('\n')
+                        def process = new ProcessBuilder('javap', '-classpath', f.absolutePath, '-private', clazz).redirectErrorStream(true).start()
+                        def output = process.inputStream.text.readLines().take(190).join('\n')
                         process.waitFor()
                         println("API_JAVAP " + clazz + "\n" + output)
                         inspectCount++

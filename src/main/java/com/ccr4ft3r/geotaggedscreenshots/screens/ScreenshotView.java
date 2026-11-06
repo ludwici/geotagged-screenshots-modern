@@ -3,10 +3,9 @@ package com.ccr4ft3r.geotaggedscreenshots.screens;
 import com.ccr4ft3r.geotaggedscreenshots.container.GeotaggedScreenshot;
 import com.ccr4ft3r.geotaggedscreenshots.container.ImageType;
 import com.ccr4ft3r.geotaggedscreenshots.util.RenderUtil;
-import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.NativeImage;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
@@ -44,8 +43,8 @@ public class ScreenshotView extends Screen {
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        renderBackground(guiGraphics, mouseX, mouseY, partialTick);
+    public void extractRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
+        extractBackground(guiGraphics, mouseX, mouseY, partialTick);
 
         CompletableFuture<NativeImage> future = screenshot.getImageFuture(ImageType.ORIGINAL);
         if (future != null && future.isDone()) {
@@ -63,20 +62,11 @@ public class ScreenshotView extends Screen {
                 int y = (height - imageHeight) / 2 - OFFSET * 3;
                 RenderUtil.renderImage(guiGraphics, screenshot.getId(ImageType.ORIGINAL), image.getWidth(), image.getHeight(), imageWidth, imageHeight, x, y);
             } else {
-                guiGraphics.drawCenteredString(font, missingMessage, width / 2, height / 2, 0xFFFFFF);
+                guiGraphics.centeredText(font, missingMessage, width / 2, height / 2, 0xFFFFFFFF);
             }
         }
 
-        super.render(guiGraphics, mouseX, mouseY, partialTick);
-    }
-
-    @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (keyCode == InputConstants.KEY_ESCAPE) {
-            onClose();
-            return true;
-        }
-        return super.keyPressed(keyCode, scanCode, modifiers);
+        super.extractRenderState(guiGraphics, mouseX, mouseY, partialTick);
     }
 
     @Override
