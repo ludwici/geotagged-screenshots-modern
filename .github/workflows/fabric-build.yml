@@ -1,12 +1,12 @@
-name: Fabric 26.2 Build
+name: Fabric 26.3 Build
 
 on:
   push:
     branches:
-      - 26.2-fabric
+      - 26.3-fabric
   pull_request:
     branches:
-      - 26.2-fabric
+      - 26.3-fabric
   workflow_dispatch:
 
 jobs:
@@ -29,6 +29,6 @@ jobs:
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: geotagged-screenshots-26.2-fabric
+          name: geotagged-screenshots-26.3-fabric
           path: build/libs/*-fabric-*.jar
           if-no-files-found: error
