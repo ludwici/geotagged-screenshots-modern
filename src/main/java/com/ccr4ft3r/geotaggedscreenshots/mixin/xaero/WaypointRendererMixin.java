@@ -70,9 +70,9 @@ public abstract class WaypointRendererMixin extends ElementRenderer<Waypoint, Wa
         boolean down = minecraft.mouseHandler.isLeftPressed();
         if (!down) {
             geotagged_screenshots$mousePressed = false;
-        } else if (hovered && !geotagged_screenshots$mousePressed && minecraft.screen instanceof GuiMap) {
+        } else if (hovered && !geotagged_screenshots$mousePressed && minecraft.gui.screen() instanceof GuiMap) {
             geotagged_screenshots$mousePressed = true;
-            minecraft.setScreen(new ScreenshotView(screenshot, new Vec3(waypoint.getX(), waypoint.getY(), waypoint.getZ()), minecraft.screen));
+            minecraft.gui.setScreen(new ScreenshotView(screenshot, new Vec3(waypoint.getX(), waypoint.getY(), waypoint.getZ()), minecraft.gui.screen()));
         }
 
         cir.setReturnValue(false);

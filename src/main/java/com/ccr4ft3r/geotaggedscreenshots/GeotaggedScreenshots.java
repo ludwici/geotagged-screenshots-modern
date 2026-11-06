@@ -161,7 +161,7 @@ public class GeotaggedScreenshots {
 
         Minecraft.getInstance().execute(() -> {
             if (Minecraft.getInstance().player != null) {
-                Minecraft.getInstance().gui.getChat().addClientSystemMessage(Component.translatable("message.geotagged_screenshots." + key, count));
+                Minecraft.getInstance().player.sendSystemMessage(Component.translatable("message.geotagged_screenshots." + key, count));
             }
         });
     }
