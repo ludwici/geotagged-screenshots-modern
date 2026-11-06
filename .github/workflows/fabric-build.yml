@@ -1,12 +1,12 @@
-name: Fabric 1.21.1 Build
+name: Fabric 26.1.2 Build
 
 on:
   push:
     branches:
-      - 1.21.1-fabric
+      - 26.1.2-fabric
   pull_request:
     branches:
-      - 1.21.1-fabric
+      - 26.1.2-fabric
   workflow_dispatch:
 
 jobs:
@@ -19,7 +19,7 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '21'
+          java-version: '25'
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '9.5.1'
@@ -29,6 +29,6 @@ jobs:
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: geotagged-screenshots-1.21.1-fabric
+          name: geotagged-screenshots-26.1.2-fabric
           path: build/libs/*-fabric-*.jar
           if-no-files-found: error
