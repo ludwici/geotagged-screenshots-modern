@@ -6,7 +6,7 @@ import com.ccr4ft3r.geotaggedscreenshots.container.ImageType;
 import com.ccr4ft3r.geotaggedscreenshots.screens.ScreenshotView;
 import com.mojang.blaze3d.platform.NativeImage;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
+import xaero.lib.client.graphics.XaeroBufferProvider;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.phys.Vec3;
@@ -38,8 +38,8 @@ public abstract class WaypointRendererMixin extends ElementRenderer<Waypoint, Wa
         super(context, provider, reader);
     }
 
-    @Inject(method = "renderElement(Lxaero/map/mods/gui/Waypoint;ZDFDDLxaero/map/element/render/ElementRenderInfo;Lxaero/map/element/MapElementGraphics;Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;Lxaero/map/graphics/renderer/multitexture/MultiTextureRenderTypeRendererProvider;)Z", at = @At("HEAD"), remap = false, cancellable = true)
-    private void renderScreenshot(Waypoint waypoint, boolean hovered, double depth, float scale, double partialX, double partialY, ElementRenderInfo info, MapElementGraphics graphics, MultiBufferSource.BufferSource buffers, MultiTextureRenderTypeRendererProvider renderer, CallbackInfoReturnable<Boolean> cir) {
+    @Inject(method = "renderElement(Lxaero/map/mods/gui/Waypoint;ZDFDDLxaero/map/element/render/ElementRenderInfo;Lxaero/map/element/MapElementGraphics;Lxaero/lib/client/graphics/XaeroBufferProvider;Lxaero/map/graphics/renderer/multitexture/MultiTextureRenderTypeRendererProvider;)Z", at = @At("HEAD"), remap = false, cancellable = true)
+    private void renderScreenshot(Waypoint waypoint, boolean hovered, double depth, float scale, double partialX, double partialY, ElementRenderInfo info, MapElementGraphics graphics, XaeroBufferProvider buffers, MultiTextureRenderTypeRendererProvider renderer, CallbackInfoReturnable<Boolean> cir) {
         if (GeotaggedScreenshots.ALBUM == null) {
             return;
         }
@@ -78,8 +78,8 @@ public abstract class WaypointRendererMixin extends ElementRenderer<Waypoint, Wa
         cir.setReturnValue(false);
     }
 
-    @Inject(method = "renderElementShadow(Lxaero/map/mods/gui/Waypoint;ZFDDLxaero/map/element/render/ElementRenderInfo;Lxaero/map/element/MapElementGraphics;Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;Lxaero/map/graphics/renderer/multitexture/MultiTextureRenderTypeRendererProvider;)V", at = @At("HEAD"), remap = false, cancellable = true)
-    private void hideShadow(Waypoint waypoint, boolean hovered, float scale, double partialX, double partialY, ElementRenderInfo info, MapElementGraphics graphics, MultiBufferSource.BufferSource buffers, MultiTextureRenderTypeRendererProvider renderer, CallbackInfo ci) {
+    @Inject(method = "renderElementShadow(Lxaero/map/mods/gui/Waypoint;ZFDDLxaero/map/element/render/ElementRenderInfo;Lxaero/map/element/MapElementGraphics;Lxaero/lib/client/graphics/XaeroBufferProvider;Lxaero/map/graphics/renderer/multitexture/MultiTextureRenderTypeRendererProvider;)V", at = @At("HEAD"), remap = false, cancellable = true)
+    private void hideShadow(Waypoint waypoint, boolean hovered, float scale, double partialX, double partialY, ElementRenderInfo info, MapElementGraphics graphics, XaeroBufferProvider buffers, MultiTextureRenderTypeRendererProvider renderer, CallbackInfo ci) {
         if (GeotaggedScreenshots.ALBUM != null && GeotaggedScreenshots.ALBUM.getScreenshot(waypoint.getName()) != null) {
             ci.cancel();
         }
