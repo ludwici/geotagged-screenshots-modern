@@ -1,37 +1,39 @@
 package com.ccr4ft3r.geotaggedscreenshots.config;
 
-import net.minecraftforge.common.ForgeConfigSpec;
+import net.neoforged.neoforge.common.ModConfigSpec;
 
 public class ClientConfig {
-
-    private static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
+    private static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
     public static final Data CONFIG_DATA = new Data(BUILDER);
-    public static final ForgeConfigSpec CONFIG = BUILDER.build();
+    public static final ModConfigSpec CONFIG = BUILDER.build();
 
     public static class Data {
+        public final ModConfigSpec.BooleanValue useSeparateSetForGeotaggedScreenshots;
+        public final ModConfigSpec.ConfigValue<String> waypointSetName;
+        public final ModConfigSpec.BooleanValue displayThumbnailRegenerationInChat;
+        public final ModConfigSpec.BooleanValue hideUiAtTakingScreenshots;
+        public final ModConfigSpec.BooleanValue disableScreenshotChatMessage;
+        public final ModConfigSpec.BooleanValue useJpgForScreenshots;
 
-        public ForgeConfigSpec.BooleanValue useSeparateSetForGeotaggedScreenshots;
-        public ForgeConfigSpec.ConfigValue<String> waypointSetName;
-        public ForgeConfigSpec.BooleanValue displayThumbnailRegenerationInChat;
-        public ForgeConfigSpec.BooleanValue hideUiAtTakingScreenshots;
-        public ForgeConfigSpec.BooleanValue disableScreenshotChatMessage;
-        public ForgeConfigSpec.BooleanValue useJpgForScreenshots;
-
-        public Data(ForgeConfigSpec.Builder builder) {
-            builder.comment("Important: Renaming screenshots or waypoints will annul their connection. If you rename one of them make sure to rename the other one too.");
-            useSeparateSetForGeotaggedScreenshots = builder.comment("Determines whether geotagged screenshots should be added to a separate set of waypoints. " +
-                    "If this option is disabled screenshots will be added to the default set.")
-                .define("useSeparateSetForGeotaggedScreenshots", true);
-            waypointSetName = builder.comment("Specifies the name of the waypoint set which geotagged screenshots should be added.")
-                .define("waypointSetName", "Geotagged Screenshots");
-            displayThumbnailRegenerationInChat = builder.comment("Determines whether to show a chat message for starting and completing the regeneration of thumbnails.")
-                .define("displayThumbnailRegenerationInChat", true);
-            hideUiAtTakingScreenshots = builder.comment("Determines whether to hide the whole ui at taking screenshots.")
-                .define("hideUiAtTakingScreenshots", true);
-            disableScreenshotChatMessage = builder.comment("Determines whether to disable the success message after taking a screenshot.")
-                .define("disableScreenshotChatMessage", true);
-            useJpgForScreenshots = builder.comment("Specifies whether to use jpg instead of png for screenshots.")
-                .define("useJpgForScreenshots", true);
+        public Data(ModConfigSpec.Builder builder) {
+            useSeparateSetForGeotaggedScreenshots = builder
+                    .comment("Store screenshot waypoints in a separate Xaero waypoint set.")
+                    .define("useSeparateSetForGeotaggedScreenshots", true);
+            waypointSetName = builder
+                    .comment("Waypoint set name for screenshots.")
+                    .define("waypointSetName", "Geotagged Screenshots");
+            displayThumbnailRegenerationInChat = builder
+                    .comment("Display thumbnail regeneration progress.")
+                    .define("displayThumbnailRegenerationInChat", true);
+            hideUiAtTakingScreenshots = builder
+                    .comment("Hide the interface when taking screenshots. Reserved for compatibility.")
+                    .define("hideUiAtTakingScreenshots", false);
+            disableScreenshotChatMessage = builder
+                    .comment("Suppress the screenshot success message.")
+                    .define("disableScreenshotChatMessage", true);
+            useJpgForScreenshots = builder
+                    .comment("Legacy setting. Screenshots are saved as PNG in NeoForge 1.21.1.")
+                    .define("useJpgForScreenshots", false);
         }
     }
 }

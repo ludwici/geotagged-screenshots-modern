@@ -10,37 +10,33 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.CompletableFuture;
 
-import static com.ccr4ft3r.geotaggedscreenshots.ModConstants.*;
+import static com.ccr4ft3r.geotaggedscreenshots.ModConstants.THUMBNAIL_DIR;
 
 public class ImageUtil {
-
-    public static File createThumbnail(NativeImage nativeimage, File target) {
+    public static File createThumbnail(NativeImage original, File target) {
         int width = 400;
-        int height = (int) (width * ((float) nativeimage.getHeight() / nativeimage.getWidth()));
-        File thumbnailFile = new File(THUMBNAIL_DIR, target.getName());
-        ImageUtil.createThumbnail(nativeimage, thumbnailFile, width, height);
-        return thumbnailFile;
-    }
+        int height = Math.max(1, (int) (width * ((float) original.getHeight() / original.getWidth())));
+        String filename = target.getName().replaceFirst("\\.[^.]+$", "") + ".png";
+        File thumbnailFile = new File(THUMBNAIL_DIR, filename);
 
-    private static void createThumbnail(NativeImage original, File target, int width, int height) {
-        NativeImage thumbnail = new NativeImage(width, height, false);
-        original.resizeSubRectTo(0, 0, original.getWidth(), original.getHeight(), thumbnail);
-        try {
-            if (target.getParentFile().exists() || target.getParentFile().mkdirs()) {
-                thumbnail.writeToFile(target);
-            } else
-                throw new IOException("Couldn't create directory " + target.getParentFile());
+        try (NativeImage thumbnail = new NativeImage(width, height, false)) {
+            original.resizeSubRectTo(0, 0, original.getWidth(), original.getHeight(), thumbnail);
+            if (thumbnailFile.getParentFile().exists() || thumbnailFile.getParentFile().mkdirs()) {
+                thumbnail.writeToFile(thumbnailFile);
+            }
         } catch (IOException e) {
-            LogUtils.getLogger().error("Couldn't create thumbnail file {} was not found.", target, e);
+            LogUtils.getLogger().error("Couldn't write screenshot thumbnail {}", thumbnailFile, e);
         }
+
+        return thumbnailFile;
     }
 
     public static CompletableFuture<NativeImage> loadImage(File file) {
         return CompletableFuture.supplyAsync(() -> {
-            try (InputStream inputStream = new FileInputStream(file)) {
-                return NativeImage.read(inputStream);
+            try (InputStream stream = new FileInputStream(file)) {
+                return NativeImage.read(stream);
             } catch (Exception e) {
-                LogUtils.getLogger().error("File {} was not found.", file, e);
+                LogUtils.getLogger().error("Couldn't load screenshot {}", file, e);
             }
             return null;
         }, Util.backgroundExecutor());

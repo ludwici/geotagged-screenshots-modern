@@ -1,18 +1,14 @@
 package com.ccr4ft3r.geotaggedscreenshots.util;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.gui.GuiComponent;
-import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.resources.ResourceLocation;
 
 public class RenderUtil {
+    public static void renderImage(GuiGraphics graphics, ResourceLocation textureId, int width, int height, int scaledWidth, int scaledHeight, int x, int y) {
+        if (textureId == null) {
+            return;
+        }
 
-    public static void renderImage(PoseStack matrixStack, int imageId, int width, int height, int scaledWidth, int scaledHeight, int xOffset, int yOffset) {
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
-        RenderSystem.setShaderTexture(0, imageId);
-        RenderSystem.enableBlend();
-        GuiComponent.blit(matrixStack, xOffset, yOffset, scaledWidth, scaledHeight, 0, 0, width, height, width, height);
-        RenderSystem.disableBlend();
+        graphics.blit(textureId, x, y, scaledWidth, scaledHeight, 0.0F, 0.0F, width, height, width, height);
     }
 }

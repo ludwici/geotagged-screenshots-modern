@@ -1,67 +1,73 @@
 package com.ccr4ft3r.geotaggedscreenshots.container;
 
-import com.ccr4ft3r.geotaggedscreenshots.config.ClientConfig;
 import com.ccr4ft3r.geotaggedscreenshots.util.ImageUtil;
 import com.mojang.blaze3d.platform.NativeImage;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.DynamicTexture;
+import net.minecraft.resources.ResourceLocation;
 
 import java.io.File;
-import java.util.*;
+import java.util.Arrays;
+import java.util.EnumMap;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 public class GeotaggedScreenshot {
-
     private final String name;
-
-    private final Map<ImageType, File> fileByType = new HashMap<>();
-    private final Map<ImageType, CompletableFuture<NativeImage>> futureByType = new HashMap<>();
-    private final Map<ImageType, DynamicTexture> textureByType = new HashMap<>();
-    private boolean isMissingThumbnail;
+    private final Map<ImageType, File> fileByType = new EnumMap<>(ImageType.class);
+    private final Map<ImageType, CompletableFuture<NativeImage>> futureByType = new EnumMap<>(ImageType.class);
+    private final Map<ImageType, ResourceLocation> textureByType = new EnumMap<>(ImageType.class);
 
     public GeotaggedScreenshot(String name) {
         this.name = name;
     }
 
     public CompletableFuture<NativeImage> getImageFuture(ImageType type) {
-        if (futureByType.get(type) == null && (type == ImageType.ORIGINAL || !isMissingThumbnail))
-            loadImage(type);
-        return futureByType.get(type);
-    }
-
-    private void loadImage(ImageType type) {
         if (!futureByType.containsKey(type)) {
             File file = getFile(type);
-            if (file.exists())
+            if (file.exists()) {
                 futureByType.put(type, ImageUtil.loadImage(file));
+            }
         }
+        return futureByType.get(type);
     }
 
     public GeotaggedScreenshot setFile(ImageType type, File file) {
         fileByType.put(type, file);
-        if (type == ImageType.THUMBNAIL)
-            isMissingThumbnail = !file.exists();
         return this;
     }
 
     public File getFile(ImageType type) {
-        return fileByType.computeIfAbsent(type, t -> new File(type.getDir(), name + (ClientConfig.CONFIG_DATA.useJpgForScreenshots.get() ? ".jpg" : ".png")));
+        return fileByType.computeIfAbsent(type, t -> {
+            File png = new File(type.getDir(), name + ".png");
+            if (png.exists() || type == ImageType.THUMBNAIL) {
+                return png;
+            }
+
+            File jpg = new File(type.getDir(), name + ".jpg");
+            return jpg.exists() ? jpg : png;
+        });
     }
 
-    public DynamicTexture getTexture(ImageType type) {
-        DynamicTexture texture = textureByType.get(type);
-        if (texture != null)
-            return texture;
-        CompletableFuture<NativeImage> future = getImageFuture(type);
-        if (future != null && future.isDone()) {
-            texture = new DynamicTexture(future.join());
-            textureByType.put(type, texture);
-            return texture;
+    public ResourceLocation getId(ImageType type) {
+        ResourceLocation id = textureByType.get(type);
+        if (id != null) {
+            return id;
         }
-        return null;
-    }
 
-    public int getId(ImageType type) {
-        return getTexture(type) != null ? getTexture(type).getId() : 0;
+        CompletableFuture<NativeImage> future = getImageFuture(type);
+        if (future == null || !future.isDone()) {
+            return null;
+        }
+
+        NativeImage image = future.getNow(null);
+        if (image == null) {
+            return null;
+        }
+
+        id = Minecraft.getInstance().getTextureManager().register("geotagged_" + type.name().toLowerCase(), new DynamicTexture(image));
+        textureByType.put(type, id);
+        return id;
     }
 
     public void close() {
@@ -69,13 +75,20 @@ public class GeotaggedScreenshot {
     }
 
     public void close(ImageType type) {
-        Optional.ofNullable(textureByType.remove(type)).ifPresent(DynamicTexture::close);
-        Optional.ofNullable(futureByType.remove(type)).ifPresent(future -> {
+        ResourceLocation id = textureByType.remove(type);
+        if (id != null) {
+            Minecraft.getInstance().getTextureManager().release(id);
+        }
+
+        CompletableFuture<NativeImage> future = futureByType.remove(type);
+        if (future != null && id == null) {
             NativeImage image = future.getNow(null);
-            if (image != null)
+            if (image != null) {
                 image.close();
-            else future.cancel(true);
-        });
+            } else {
+                future.cancel(true);
+            }
+        }
     }
 
     public String getName() {
