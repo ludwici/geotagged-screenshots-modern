@@ -53,4 +53,3 @@ tasks.withType(Test).configureEach {
 }
 
 
-apply from: 'inspectApi.gradle'
