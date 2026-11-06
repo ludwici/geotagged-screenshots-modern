@@ -18,6 +18,19 @@ public final class JpegImageEncoder {
         return ((abgr & 0xFF) << 16) | (abgr & 0xFF00) | ((abgr >>> 16) & 0xFF);
     }
 
+    public static int toAbgr(int argb) {
+        return (argb & 0xFF00FF00) | ((argb & 0xFF) << 16) | ((argb >>> 16) & 0xFF);
+    }
+
+    public static BufferedImage read(File file) throws IOException {
+        BufferedImage image = ImageIO.read(file);
+        if (image == null) {
+            throw new IOException("Could not decode JPEG image: " + file.getAbsolutePath());
+        }
+
+        return image;
+    }
+
     public static void write(BufferedImage image, File file) throws IOException {
         Iterator<ImageWriter> writers = ImageIO.getImageWritersByFormatName("jpeg");
         if (!writers.hasNext()) {
