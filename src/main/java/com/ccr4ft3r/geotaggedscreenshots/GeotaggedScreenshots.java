@@ -76,7 +76,7 @@ public class GeotaggedScreenshots {
             event.setResultMessage(Component.empty());
         } else {
             Component fileLink = Component.literal(screenshotFile.getName()).withStyle(style ->
-                    style.withUnderlined(true).withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_FILE, screenshotFile.getAbsolutePath())));
+                    style.withUnderlined(true).withClickEvent(new ClickEvent.OpenFile(screenshotFile.toPath())));
             event.setResultMessage(Component.translatable("screenshot.success", fileLink));
         }
 
@@ -161,7 +161,7 @@ public class GeotaggedScreenshots {
 
         Minecraft.getInstance().execute(() -> {
             if (Minecraft.getInstance().player != null) {
-                Minecraft.getInstance().player.displayClientMessage(Component.translatable("message.geotagged_screenshots." + key, count), false);
+                Minecraft.getInstance().gui.getChat().addMessage(Component.translatable("message.geotagged_screenshots." + key, count));
             }
         });
     }
