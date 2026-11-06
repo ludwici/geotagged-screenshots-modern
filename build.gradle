@@ -78,4 +78,3 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 
-apply from: 'inspectXaero.gradle'

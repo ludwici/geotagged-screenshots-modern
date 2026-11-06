@@ -23,8 +23,6 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '9.5.1'
-      - name: Inspect Xaero API
-        run: gradle inspectXaero --no-daemon
       - name: Build NeoForge mod
         run: gradle clean build --no-daemon --stacktrace
       - name: Upload mod jar
