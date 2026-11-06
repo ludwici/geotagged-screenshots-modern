@@ -45,8 +45,8 @@ dependencies {
     compileOnly "xaero.map:xaeroworldmap-neoforge-$rootProject.xaero_map_version"
     compileOnly "xaero.minimap:xaerominimap-neoforge-$rootProject.xaero_minimap_version"
 
-    localRuntime "xaero.map:xaeroworldmap-neoforge-$rootProject.xaero_map_version"
-    localRuntime "xaero.minimap:xaerominimap-neoforge-$rootProject.xaero_minimap_version"
+    runtimeOnly "xaero.map:xaeroworldmap-neoforge-$rootProject.xaero_map_version"
+    runtimeOnly "xaero.minimap:xaerominimap-neoforge-$rootProject.xaero_minimap_version"
 }
 
 var generateModMetadata = tasks.register('generateModMetadata', ProcessResources) {
