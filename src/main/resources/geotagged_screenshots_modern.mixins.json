@@ -8,7 +8,9 @@
     "MinecraftMixin",
     "ScreenshotMixin",
     "xaero.SupportXaeroMinimapAccessor",
-    "xaero.WaypointRendererMixin"
+    "xaero.WaypointRendererMixin",
+    "xaero.WaypointReaderMixin",
+    "xaero.WaypointMapRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1
