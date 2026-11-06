@@ -100,22 +100,30 @@ public class GeotaggedScreenshots {
         }
 
         String newWorldId = processor.getMapWorld().toString();
-        if (ALBUM != null && ALBUM.getId().equals(newWorldId)) {
-            return;
-        }
-
         WaypointSet screenshotSet = XaeroWaypointUtil.getScreenshotWaypointSet();
         if (screenshotSet == null) {
             return;
         }
 
-        if (ALBUM != null) {
-            ALBUM.getScreenshots().forEach(GeotaggedScreenshot::close);
+        if (ALBUM == null || !ALBUM.getId().equals(newWorldId)) {
+            if (ALBUM != null) {
+                ALBUM.getScreenshots().forEach(GeotaggedScreenshot::close);
+            }
+
+            ALBUM = new WorldScreenshotAlbum(newWorldId);
         }
 
-        ALBUM = new WorldScreenshotAlbum(newWorldId);
-        screenshotSet.getWaypoints().forEach(waypoint -> ALBUM.add(new GeotaggedScreenshot(waypoint.getName())));
-        regenerateMissingThumbnails();
+        int discovered = 0;
+        for (var waypoint : screenshotSet.getWaypoints()) {
+            if (ALBUM.getScreenshot(waypoint.getName()) == null) {
+                ALBUM.add(new GeotaggedScreenshot(waypoint.getName()));
+                discovered++;
+            }
+        }
+
+        if (discovered > 0) {
+            regenerateMissingThumbnails();
+        }
     }
 
     private static void regenerateMissingThumbnails() {
