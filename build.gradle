@@ -52,3 +52,5 @@ tasks.withType(JavaCompile).configureEach {
 tasks.withType(Test).configureEach {
     useJUnitPlatform()
 }
+
+apply from: 'verifyXaero.gradle'

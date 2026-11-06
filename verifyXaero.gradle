@@ -1,0 +1,48 @@
+tasks.register('verifyXaeroApis') {
+    doLast {
+        def wanted = [
+            'xaero.map.mods.gui.WaypointRenderer': [
+                'renderElement(xaero.map.mods.gui.Waypoint, boolean, double, float, double, double',
+                'renderElementShadow(xaero.map.mods.gui.Waypoint, boolean, float, double, double'
+            ],
+            'xaero.map.mods.gui.WaypointReader': [
+                'getInteractionBoxRight(xaero.map.mods.gui.Waypoint',
+                'getInteractionBoxTop(xaero.map.mods.gui.Waypoint',
+                'getInteractionBoxBottom(xaero.map.mods.gui.Waypoint'
+            ],
+            'xaero.hud.minimap.waypoint.render.WaypointMapRenderer': [
+                'drawIconOnGUI(net.minecraft.client.gui.GuiGraphics'
+            ]
+        ]
+        def jars = configurations.compileClasspath.resolve().findAll {
+            it.name.toLowerCase().contains('xaero') && it.name.endsWith('.jar')
+        }
+        def found = [] as Set
+        jars.each { jar ->
+            def zip = new java.util.zip.ZipFile(jar)
+            try {
+                wanted.each { clazz, signatures ->
+                    if (zip.getEntry(clazz.replace('.', '/') + '.class') != null) {
+                        def p = new ProcessBuilder('javap', '-classpath', jar.absolutePath, '-private', '-s', clazz).redirectErrorStream(true).start()
+                        def output = p.inputStream.text
+                        if (p.waitFor() != 0) {
+                            throw new GradleException("javap failed for " + clazz + " from " + jar.name)
+                        }
+                        signatures.each { s ->
+                            if (!output.contains(s)) {
+                                throw new GradleException("Xaero method missing " + clazz + " :: " + s)
+                            }
+                            println("XAERO_VERIFIED " + clazz + " :: " + s)
+                        }
+                        found.add(clazz)
+                    }
+                }
+            } finally {
+                zip.close()
+            }
+        }
+        if (!found.containsAll(wanted.keySet())) {
+            throw new GradleException("Xaero classes missing: " + (wanted.keySet() - found))
+        }
+    }
+}
