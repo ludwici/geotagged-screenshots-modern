@@ -1,0 +1,57 @@
+name: Publish CurseForge (manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_branch:
+        description: "Branch to publish"
+        required: true
+        type: choice
+        options:
+          - 1.21.1-fabric
+          - 1.21.1-neo
+          - 26.1.2-fabric
+          - 26.1.2-neo
+          - 26.2-fabric
+          - 26.2-neo
+          - 26.3-fabric
+          - 26.3-neo
+      confirm:
+        description: "Type PUBLISH to confirm the CurseForge upload"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: curseforge-${{ inputs.target_branch }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Publish ${{ inputs.target_branch }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require explicit confirmation
+        env:
+          CONFIRM: ${{ inputs.confirm }}
+        run: test "$CONFIRM" = "PUBLISH"
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.target_branch }}
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ startsWith(inputs.target_branch, '1.21.1') && '21' || '25' }}
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: ${{ inputs.target_branch == '1.21.1-neo' && '9.2.1' || (endsWith(inputs.target_branch, '-fabric') && !startsWith(inputs.target_branch, '1.21.1') && '9.7.0' || '9.5.1') }}
+      - name: Check CurseForge token
+        env:
+          CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
+        run: test -n "$CURSEFORGE_TOKEN"
+      - name: Build and publish to CurseForge
+        env:
+          CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
+        run: gradle clean publishMods --no-daemon --stacktrace
