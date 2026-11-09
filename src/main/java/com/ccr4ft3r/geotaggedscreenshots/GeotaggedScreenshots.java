@@ -72,6 +72,9 @@ public class GeotaggedScreenshots implements ClientModInitializer {
         if (discovered > 0) {
             regenerateMissingThumbnails();
         }
+
+        XaeroWaypointUtil.requestWorldMapRefresh();
+        LogUtils.getLogger().info("Geotagged album synchronized: {} screenshot(s), {} newly discovered", ALBUM.getScreenshots().size(), discovered);
     }
 
     private static void regenerateMissingThumbnails() {
