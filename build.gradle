@@ -1,6 +1,7 @@
 plugins {
     id 'net.fabricmc.fabric-loom-remap' version "${loom_version}"
     id 'java'
+    id 'me.modmuss50.mod-publish-plugin' version '2.2.1'
 }
 
 version = project.mod_version
@@ -53,3 +54,27 @@ tasks.withType(Test).configureEach {
     useJUnitPlatform()
 }
 
+
+tasks.withType(Jar).configureEach {
+    archiveVersion.set("${project.minecraft_version}-${project.mod_version}")
+}
+
+publishMods {
+    file = tasks.named('remapJar').flatMap { it.archiveFile }
+    version = "${project.minecraft_version}-${project.mod_version}"
+    displayName = tasks.named('remapJar').flatMap { it.archiveFile }.map { it.asFile.name }
+    type = STABLE
+    modLoaders.add("fabric")
+    dryRun = providers.gradleProperty("publishDryRun").map { it.toBoolean() }.orElse(false)
+
+    curseforge {
+        projectId = "1787408"
+        accessToken = providers.environmentVariable("CURSEFORGE_TOKEN").orElse(providers.gradleProperty("CURSEFORGE_TOKEN"))
+        minecraftVersions.add(project.minecraft_version)
+        client = true
+        server = false
+        requires("fabric-api")
+        requires("xaeros-minimap")
+        requires("xaeros-world-map")
+    }
+}
