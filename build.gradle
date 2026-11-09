@@ -59,9 +59,9 @@ tasks.withType(Jar).configureEach {
 }
 
 publishMods {
-    file = tasks.named('remapJar').flatMap { it.archiveFile }
+    file = tasks.named('jar', Jar).flatMap { it.archiveFile }
     version = "${project.minecraft_version}-${project.mod_version}"
-    displayName = tasks.named('remapJar').flatMap { it.archiveFile }.map { it.asFile.name }
+    displayName = tasks.named('jar', Jar).flatMap { it.archiveFile }.map { it.asFile.name }
     type = STABLE
     modLoaders.add("fabric")
     dryRun = providers.gradleProperty("publishDryRun").map { it.toBoolean() }.orElse(false)
