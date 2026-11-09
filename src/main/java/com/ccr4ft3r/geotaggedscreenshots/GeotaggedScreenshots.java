@@ -29,6 +29,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class GeotaggedScreenshots implements ClientModInitializer {
     public static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();
     public static WorldScreenshotAlbum ALBUM;
+    private static WaypointSet synchronizedWaypointSet;
+    private static int synchronizedWaypointCount = -1;
 
     @Override
     public void onInitializeClient() {
@@ -58,7 +60,7 @@ public class GeotaggedScreenshots implements ClientModInitializer {
         }
 
         WaypointSet set = world.getWaypointSet(ModConstants.getWaypointSet());
-        if (set != null && (ALBUM == null || ALBUM.getScreenshots().size() < set.getWaypoints().size())) {
+        if (set != null && (ALBUM == null || synchronizedWaypointSet != set || synchronizedWaypointCount != set.getWaypoints().size())) {
             load();
         }
     }
@@ -73,6 +75,8 @@ public class GeotaggedScreenshots implements ClientModInitializer {
             ALBUM.getScreenshots().forEach(GeotaggedScreenshot::close);
             ALBUM = null;
         }
+        synchronizedWaypointSet = null;
+        synchronizedWaypointCount = -1;
     }
 
     public static void load() {
@@ -105,6 +109,9 @@ public class GeotaggedScreenshots implements ClientModInitializer {
                 discovered++;
             }
         }
+
+        synchronizedWaypointSet = screenshotSet;
+        synchronizedWaypointCount = screenshotSet.getWaypoints().size();
 
         if (discovered > 0) {
             regenerateMissingThumbnails();
