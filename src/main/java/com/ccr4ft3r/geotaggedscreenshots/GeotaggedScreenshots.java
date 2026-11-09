@@ -16,6 +16,7 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
@@ -57,7 +58,7 @@ public class GeotaggedScreenshots {
     }
 
     private static void migrateLegacyClientConfig() {
-        Path configDirectory = Minecraft.getInstance().gameDirectory.toPath().resolve("config");
+        Path configDirectory = FMLPaths.CONFIGDIR.get();
         Path legacyConfig = configDirectory.resolve("geotagged_screenshots-client.toml");
         Path modernConfig = configDirectory.resolve(ModConstants.MODID + "-client.toml");
         if (Files.isRegularFile(legacyConfig) && Files.notExists(modernConfig)) {
