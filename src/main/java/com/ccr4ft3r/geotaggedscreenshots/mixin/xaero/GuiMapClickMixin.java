@@ -17,7 +17,7 @@ import xaero.map.mods.gui.Waypoint;
 
 @Mixin(GuiMap.class)
 public abstract class GuiMapClickMixin {
-    @Shadow
+    @Shadow(remap = false)
     private HoveredMapElementHolder<?, ?> viewed;
 
     @Inject(method = "mapClicked(III)V", at = @At("HEAD"), remap = false, cancellable = true)
