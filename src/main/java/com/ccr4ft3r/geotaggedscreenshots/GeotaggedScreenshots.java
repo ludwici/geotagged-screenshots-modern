@@ -10,9 +10,7 @@ import com.ccr4ft3r.geotaggedscreenshots.util.xaero.XaeroWaypointUtil;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
-import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
@@ -20,7 +18,6 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
-import net.neoforged.neoforge.client.event.ScreenshotEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import xaero.hud.minimap.BuiltInHudModules;
 import xaero.hud.minimap.module.MinimapSession;
@@ -46,7 +43,6 @@ public class GeotaggedScreenshots {
 
     public GeotaggedScreenshots(IEventBus modEventBus, ModContainer modContainer) {
         modContainer.registerConfig(ModConfig.Type.CLIENT, ClientConfig.CONFIG, ModConstants.MODID + "-client.toml");
-        NeoForge.EVENT_BUS.addListener(GeotaggedScreenshots::onScreenshot);
         NeoForge.EVENT_BUS.addListener(GeotaggedScreenshots::onScreenOpening);
         NeoForge.EVENT_BUS.addListener(ClientTickEvent.Post.class, GeotaggedScreenshots::onClientTick);
         NeoForge.EVENT_BUS.addListener(ScreenshotCapture::onFramePre);
@@ -57,43 +53,6 @@ public class GeotaggedScreenshots {
         if (event.getNewScreen() instanceof GuiMap) {
             Minecraft.getInstance().execute(GeotaggedScreenshots::load);
         }
-    }
-
-    private static void onScreenshot(ScreenshotEvent event) {
-        Minecraft minecraft = Minecraft.getInstance();
-        if (event.isCanceled() || minecraft.player == null || minecraft.level == null) {
-            return;
-        }
-
-        File screenshotFile;
-        File thumbnailFile;
-        Vec3 position = minecraft.player.position();
-
-        try {
-            screenshotFile = ImageUtil.saveScreenshot(event.getImage(), event.getScreenshotFile(), ClientConfig.CONFIG_DATA.useJpgForScreenshots.get());
-            thumbnailFile = ImageUtil.createThumbnail(event.getImage(), screenshotFile);
-        } catch (IOException e) {
-            LogUtils.getLogger().error("Couldn't save geotagged screenshot", e);
-            event.setResultMessage(Component.translatable("screenshot.failure", e.getMessage()));
-            event.setCanceled(true);
-            return;
-        }
-
-        if (ClientConfig.CONFIG_DATA.disableScreenshotChatMessage.get()) {
-            event.setResultMessage(Component.empty());
-        } else {
-            Component fileLink = Component.literal(screenshotFile.getName()).withStyle(style ->
-                    style.withUnderlined(true).withClickEvent(new ClickEvent.OpenFile(screenshotFile.toPath())));
-            event.setResultMessage(Component.translatable("screenshot.success", fileLink));
-        }
-
-        event.setCanceled(true);
-        minecraft.execute(() -> {
-            load();
-            if (ALBUM != null) {
-                XaeroWaypointUtil.addNewScreenshotWaypoint(position, screenshotFile, thumbnailFile);
-            }
-        });
     }
 
     private static void onClientTick(ClientTickEvent.Post event) {
