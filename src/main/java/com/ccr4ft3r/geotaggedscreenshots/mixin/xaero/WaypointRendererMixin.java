@@ -79,8 +79,7 @@ public abstract class WaypointRendererMixin extends ElementRenderer<Waypoint, Wa
             pose.translate(partialX, partialY, 0.0D);
             float waypointScale = scale * this.context.worldmapWaypointsScale;
             pose.scale(waypointScale, waypointScale, 1.0F);
-            pose.scale(1.0F, -1.0F, 1.0F);
-            graphics.blit(id, -width / 2, -height / 2, 0, 0, width, height, 1, 1, 1, RenderPipelines.GUI_TEXTURED);
+            graphics.blit(id, -width / 2, -height / 2, 0, 1, width, height, 1, 0, 1, RenderPipelines.GUI_TEXTURED);
         } finally {
             pose.popPose();
         }
