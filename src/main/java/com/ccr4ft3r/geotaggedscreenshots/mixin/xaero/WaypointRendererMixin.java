@@ -72,12 +72,11 @@ public abstract class WaypointRendererMixin extends ElementRenderer<Waypoint, Wa
         int width = ThumbnailGeometry.worldMapWidth(image.getWidth(), scale);
         int height = ThumbnailGeometry.worldMapHeight(image.getWidth(), image.getHeight(), scale);
         Identifier id = screenshot.getId(ImageType.THUMBNAIL);
-        if (id != null) {
-            graphics.blit(id, -width / 2, -height / 2, width, height, 0, 0, image.getWidth(), image.getHeight(), image.getWidth(), RenderPipelines.GUI_TEXTURED);
+        if (id == null) {
+            return;
         }
 
-
-
+        graphics.blit(id, -width / 2, -height / 2, width, height, 0, 0, image.getWidth(), image.getHeight(), image.getWidth(), RenderPipelines.GUI_TEXTURED);
         cir.setReturnValue(false);
     }
 
