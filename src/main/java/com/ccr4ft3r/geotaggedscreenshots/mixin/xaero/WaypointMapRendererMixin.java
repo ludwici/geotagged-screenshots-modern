@@ -5,12 +5,10 @@ import com.ccr4ft3r.geotaggedscreenshots.container.GeotaggedScreenshot;
 import com.ccr4ft3r.geotaggedscreenshots.container.ImageType;
 import com.ccr4ft3r.geotaggedscreenshots.util.ThumbnailGeometry;
 import com.mojang.blaze3d.platform.NativeImage;
-import com.mojang.logging.LogUtils;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.resources.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -24,10 +22,6 @@ import java.util.concurrent.CompletableFuture;
 
 @Mixin(WaypointMapRenderer.class)
 public abstract class WaypointMapRendererMixin {
-    @Unique
-    private static boolean geotagged_screenshots$minimapCandidateLogged;
-    @Unique
-    private static boolean geotagged_screenshots$minimapTextureLogged;
     @Inject(method = "drawIcon(Lxaero/hud/minimap/element/render/MinimapElementGraphics;Lxaero/common/minimap/render/MinimapRendererHelper;Lxaero/common/minimap/waypoints/Waypoint;IIILxaero/lib/client/graphics/XaeroBufferProvider;Lcom/mojang/blaze3d/vertex/VertexConsumer;Lcom/mojang/blaze3d/vertex/VertexConsumer;)V", at = @At("HEAD"), remap = false, cancellable = true)
     private void geotagged_screenshots$renderThumbnail(MinimapElementGraphics graphics, MinimapRendererHelper helper, Waypoint waypoint, int x, int y, int opacity, XaeroBufferProvider provider, VertexConsumer background, VertexConsumer icon, CallbackInfo ci) {
         if (GeotaggedScreenshots.ALBUM == null) {
@@ -39,10 +33,6 @@ public abstract class WaypointMapRendererMixin {
             return;
         }
 
-        if (!geotagged_screenshots$minimapCandidateLogged) {
-            geotagged_screenshots$minimapCandidateLogged = true;
-            LogUtils.getLogger().info("Geotagged Minimap renderer found screenshot waypoint {}", waypoint.getName());
-        }
 
         CompletableFuture<NativeImage> future = screenshot.getImageFuture(ImageType.THUMBNAIL);
         if (future == null || !future.isDone()) {
@@ -62,10 +52,6 @@ public abstract class WaypointMapRendererMixin {
         int width = ThumbnailGeometry.minimapWidth();
         int height = ThumbnailGeometry.minimapHeight(image.getWidth(), image.getHeight());
         graphics.blit(texture, x - width / 2, y - height / 2, 0, 0, width, height, 1, 1, 1, RenderPipelines.GUI_TEXTURED);
-        if (!geotagged_screenshots$minimapTextureLogged) {
-            geotagged_screenshots$minimapTextureLogged = true;
-            LogUtils.getLogger().info("Geotagged Minimap thumbnail submitted: {} ({}x{})", waypoint.getName(), width, height);
-        }
 
         ci.cancel();
     }
