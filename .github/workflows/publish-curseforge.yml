@@ -1,4 +1,4 @@
-name: Publish CurseForge (manual)
+name: Publish CurseForge
 
 on:
   workflow_dispatch:
@@ -20,23 +20,22 @@ on:
         description: "Type PUBLISH to confirm the CurseForge upload"
         required: true
         type: string
+  push:
+    branches: [master]
 
 permissions:
   contents: read
 
 concurrency:
-  group: curseforge-${{ inputs.target_branch }}
+  group: curseforge-${{ github.event_name == 'workflow_dispatch' && inputs.target_branch || github.event.head_commit.message }}
   cancel-in-progress: false
 
 jobs:
-  publish:
+  publish-manual:
+    if: github.event_name == 'workflow_dispatch' && inputs.confirm == 'PUBLISH'
     name: Publish ${{ inputs.target_branch }}
     runs-on: ubuntu-latest
     steps:
-      - name: Require explicit confirmation
-        env:
-          CONFIRM: ${{ inputs.confirm }}
-        run: test "$CONFIRM" = "PUBLISH"
       - uses: actions/checkout@v4
         with:
           ref: ${{ inputs.target_branch }}
@@ -51,7 +50,42 @@ jobs:
         env:
           CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
         run: test -n "$CURSEFORGE_TOKEN"
-      - name: Build and publish to CurseForge
+      - name: Publish to CurseForge
+        env:
+          CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
+        run: gradle clean publishMods --no-daemon --stacktrace
+
+  publish-on-request:
+    if: >-
+      github.event_name == 'push' &&
+      (startsWith(github.event.head_commit.message, '[publish 1.21.1]') ||
+       startsWith(github.event.head_commit.message, '[publish 26.1.2]') ||
+       startsWith(github.event.head_commit.message, '[publish 26.2]') ||
+       startsWith(github.event.head_commit.message, '[publish 26.3]'))
+    name: Publish ${{ matrix.loader }} (requested version)
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        loader: [fabric, neo]
+    env:
+      MC_VERSION: ${{ startsWith(github.event.head_commit.message, '[publish 1.21.1]') && '1.21.1' || startsWith(github.event.head_commit.message, '[publish 26.1.2]') && '26.1.2' || startsWith(github.event.head_commit.message, '[publish 26.2]') && '26.2' || '26.3' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.MC_VERSION }}-${{ matrix.loader }}
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ env.MC_VERSION == '1.21.1' && '21' || '25' }}
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: ${{ env.MC_VERSION == '1.21.1' && matrix.loader == 'neo' && '9.2.1' || env.MC_VERSION != '1.21.1' && matrix.loader == 'fabric' && '9.7.0' || '9.5.1' }}
+      - name: Check CurseForge token
+        env:
+          CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
+        run: test -n "$CURSEFORGE_TOKEN"
+      - name: Publish to CurseForge
         env:
           CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
         run: gradle clean publishMods --no-daemon --stacktrace
