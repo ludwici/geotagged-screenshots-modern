@@ -4,7 +4,6 @@ import com.ccr4ft3r.geotaggedscreenshots.GeotaggedScreenshots;
 import com.ccr4ft3r.geotaggedscreenshots.container.GeotaggedScreenshot;
 import com.ccr4ft3r.geotaggedscreenshots.container.ImageType;
 import com.mojang.logging.LogUtils;
-import net.minecraft.client.Minecraft;
 import net.minecraft.world.phys.Vec3;
 import xaero.common.minimap.waypoints.Waypoint;
 import xaero.hud.minimap.waypoint.set.WaypointSet;
@@ -15,6 +14,7 @@ import xaero.hud.minimap.BuiltInHudModules;
 import xaero.hud.minimap.module.MinimapSession;
 
 import java.io.File;
+import java.io.IOException;
 
 import static com.ccr4ft3r.geotaggedscreenshots.ModConstants.getWaypointSet;
 
@@ -53,14 +53,25 @@ public class XaeroWaypointUtil {
     }
 
     public static void addNewScreenshotWaypoint(Vec3 position, File screenshotFile, File thumbnailFile) {
+        MinimapSession session = BuiltInHudModules.MINIMAP.getCurrentSession();
+        if (session == null || GeotaggedScreenshots.ALBUM == null) {
+            return;
+        }
+
+        MinimapWorld world = session.getWorldManager().getCurrentWorld();
         WaypointSet set = getScreenshotWaypointSet();
-        if (set == null || GeotaggedScreenshots.ALBUM == null) {
+        if (world == null || set == null) {
             return;
         }
 
         String name = screenshotFile.getName().replaceFirst("\\.[^.]+$", "");
         Waypoint waypoint = new Waypoint((int) position.x, (int) position.y, (int) position.z, name, "S", WaypointColor.AQUA);
         set.add(waypoint);
+        try {
+            session.getWorldManagerIO().saveWorld(world);
+        } catch (IOException e) {
+            LogUtils.getLogger().error("Couldn't save geotagged screenshot waypoint {} to Xaero's waypoint file", name, e);
+        }
         requestWorldMapRefresh();
 
         GeotaggedScreenshot screenshot = new GeotaggedScreenshot(name)
@@ -69,6 +80,6 @@ public class XaeroWaypointUtil {
         GeotaggedScreenshots.ALBUM.add(screenshot);
         screenshot.getImageFuture(ImageType.THUMBNAIL);
 
-        LogUtils.getLogger().info("Added geotagged screenshot waypoint {} at {} (world map refresh requested)", name, position);
+        LogUtils.getLogger().info("Added geotagged screenshot waypoint {} at {}", name, position);
     }
 }
