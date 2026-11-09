@@ -147,7 +147,6 @@ public class GeotaggedScreenshots {
         }
 
         XaeroWaypointUtil.requestWorldMapRefresh();
-        LogUtils.getLogger().info("Geotagged album synchronized: {} screenshot(s), {} newly discovered", ALBUM.getScreenshots().size(), discovered);
     }
 
     private static void regenerateMissingThumbnails() {
