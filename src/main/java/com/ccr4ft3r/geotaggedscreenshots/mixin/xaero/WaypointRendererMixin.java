@@ -76,7 +76,7 @@ public abstract class WaypointRendererMixin extends ElementRenderer<Waypoint, Wa
             return;
         }
 
-        graphics.blit(id, -width / 2, -height / 2, width, height, 0, 0, image.getWidth(), image.getHeight(), image.getWidth(), RenderPipelines.GUI_TEXTURED);
+        graphics.blit(id, -width / 2, -height / 2, 0, 0, width, height, 1, 1, 1, RenderPipelines.GUI_TEXTURED);
         cir.setReturnValue(false);
     }
 
