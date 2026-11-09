@@ -9,11 +9,14 @@ import com.ccr4ft3r.geotaggedscreenshots.util.xaero.XaeroWaypointUtil;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.logging.LogUtils;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
+import xaero.hud.minimap.BuiltInHudModules;
+import xaero.hud.minimap.module.MinimapSession;
 import xaero.hud.minimap.waypoint.set.WaypointSet;
-import xaero.map.core.XaeroWorldMapCore;
+import xaero.hud.minimap.world.MinimapWorld;
 import xaero.map.gui.GuiMap;
 
 import java.io.File;
@@ -30,6 +33,7 @@ public class GeotaggedScreenshots implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         ClientConfig.load();
+        ClientTickEvents.END_CLIENT_TICK.register(GeotaggedScreenshots::onClientTick);
         ScreenEvents.AFTER_INIT.register((client, screen, scaledWidth, scaledHeight) -> {
             if (screen instanceof GuiMap) {
                 client.execute(GeotaggedScreenshots::load);
@@ -37,34 +41,67 @@ public class GeotaggedScreenshots implements ClientModInitializer {
         });
     }
 
+    private static void onClientTick(Minecraft client) {
+        if (client.level == null) {
+            closeAlbum();
+            return;
+        }
+
+        MinimapWorld world = getCurrentWaypointWorld();
+        if (world == null) {
+            return;
+        }
+
+        String worldId = world.toString();
+        if (ALBUM != null && !ALBUM.getId().equals(worldId)) {
+            closeAlbum();
+        }
+
+        WaypointSet set = world.getWaypointSet(ModConstants.getWaypointSet());
+        if (set != null && (ALBUM == null || ALBUM.getScreenshots().size() < set.getWaypoints().size())) {
+            load();
+        }
+    }
+
+    private static MinimapWorld getCurrentWaypointWorld() {
+        MinimapSession session = BuiltInHudModules.MINIMAP.getCurrentSession();
+        return session == null ? null : session.getWorldManager().getCurrentWorld();
+    }
+
+    private static void closeAlbum() {
+        if (ALBUM != null) {
+            ALBUM.getScreenshots().forEach(GeotaggedScreenshot::close);
+            ALBUM = null;
+        }
+    }
+
     public static void load() {
-        if (Minecraft.getInstance().level == null || XaeroWorldMapCore.currentSession == null) {
+        if (Minecraft.getInstance().level == null) {
             return;
         }
 
-        var processor = XaeroWorldMapCore.currentSession.getMapProcessor();
-        if (processor == null || processor.getMapWorld() == null) {
+        MinimapWorld world = getCurrentWaypointWorld();
+        if (world == null) {
             return;
         }
 
-        String newWorldId = processor.getMapWorld().toString();
+        String newWorldId = world.toString();
         WaypointSet screenshotSet = XaeroWaypointUtil.getScreenshotWaypointSet();
         if (screenshotSet == null) {
             return;
         }
 
         if (ALBUM == null || !ALBUM.getId().equals(newWorldId)) {
-            if (ALBUM != null) {
-                ALBUM.getScreenshots().forEach(GeotaggedScreenshot::close);
-            }
-
+            closeAlbum();
             ALBUM = new WorldScreenshotAlbum(newWorldId);
         }
 
         int discovered = 0;
         for (var waypoint : screenshotSet.getWaypoints()) {
             if (ALBUM.getScreenshot(waypoint.getName()) == null) {
-                ALBUM.add(new GeotaggedScreenshot(waypoint.getName()));
+                GeotaggedScreenshot screenshot = new GeotaggedScreenshot(waypoint.getName());
+                ALBUM.add(screenshot);
+                screenshot.getImageFuture(ImageType.THUMBNAIL);
                 discovered++;
             }
         }
