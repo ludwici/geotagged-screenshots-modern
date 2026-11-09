@@ -3,16 +3,13 @@ package com.ccr4ft3r.geotaggedscreenshots.mixin.xaero;
 import com.ccr4ft3r.geotaggedscreenshots.GeotaggedScreenshots;
 import com.ccr4ft3r.geotaggedscreenshots.container.GeotaggedScreenshot;
 import com.ccr4ft3r.geotaggedscreenshots.container.ImageType;
-import com.ccr4ft3r.geotaggedscreenshots.screens.ScreenshotView;
 import com.ccr4ft3r.geotaggedscreenshots.util.ThumbnailGeometry;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.logging.LogUtils;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -25,7 +22,6 @@ import xaero.map.element.render.ElementRenderProvider;
 import xaero.map.element.render.ElementRenderer;
 import xaero.map.element.render.ElementRenderInfo;
 import xaero.map.graphics.renderer.multitexture.MultiTextureRenderTypeRendererProvider;
-import xaero.map.gui.GuiMap;
 import xaero.map.mods.gui.Waypoint;
 import xaero.map.mods.gui.WaypointRenderContext;
 import xaero.map.mods.gui.WaypointRenderer;
@@ -34,8 +30,6 @@ import java.util.concurrent.CompletableFuture;
 
 @Mixin(WaypointRenderer.class)
 public abstract class WaypointRendererMixin extends ElementRenderer<Waypoint, WaypointRenderContext, WaypointRenderer> {
-    @Unique
-    private static boolean geotagged_screenshots$mousePressed;
     @Unique
     private static boolean geotagged_screenshots$mapCandidateLogged;
     @Unique
@@ -61,14 +55,6 @@ public abstract class WaypointRendererMixin extends ElementRenderer<Waypoint, Wa
             LogUtils.getLogger().info("Geotagged World Map renderer found screenshot waypoint {}", waypoint.getName());
         }
 
-        Minecraft minecraft = Minecraft.getInstance();
-        boolean down = minecraft.mouseHandler.isLeftPressed();
-        if (!down) {
-            geotagged_screenshots$mousePressed = false;
-        } else if (hovered && !geotagged_screenshots$mousePressed && minecraft.screen instanceof GuiMap) {
-            geotagged_screenshots$mousePressed = true;
-            minecraft.setScreen(new ScreenshotView(screenshot, new Vec3(waypoint.getX(), waypoint.getY(), waypoint.getZ()), minecraft.screen));
-        }
 
         CompletableFuture<NativeImage> future = screenshot.getImageFuture(ImageType.THUMBNAIL);
         if (future == null || !future.isDone()) {
@@ -93,6 +79,9 @@ public abstract class WaypointRendererMixin extends ElementRenderer<Waypoint, Wa
             pose.translate(partialX, partialY, 0.0D);
             float waypointScale = scale * this.context.worldmapWaypointsScale;
             pose.scale(waypointScale, waypointScale, 1.0F);
+            // Xaero World Map's coordinate system has an inverted Y axis.
+            // Keep the screenshot upright without changing the minimap renderer.
+            pose.scale(1.0F, -1.0F, 1.0F);
             graphics.blit(id, -width / 2, -height / 2, 0, 0, width, height, 1, 1, 1, RenderPipelines.GUI_TEXTURED);
         } finally {
             pose.popPose();
