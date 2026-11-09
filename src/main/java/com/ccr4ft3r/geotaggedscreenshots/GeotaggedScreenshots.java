@@ -16,7 +16,6 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
@@ -31,8 +30,6 @@ import xaero.map.gui.GuiMap;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -48,26 +45,12 @@ public class GeotaggedScreenshots {
     private static int waypointScanTicks;
 
     public GeotaggedScreenshots(IEventBus modEventBus, ModContainer modContainer) {
-        migrateLegacyClientConfig();
         modContainer.registerConfig(ModConfig.Type.CLIENT, ClientConfig.CONFIG, ModConstants.MODID + "-client.toml");
         NeoForge.EVENT_BUS.addListener(GeotaggedScreenshots::onScreenshot);
         NeoForge.EVENT_BUS.addListener(GeotaggedScreenshots::onScreenOpening);
         NeoForge.EVENT_BUS.addListener(ClientTickEvent.Post.class, GeotaggedScreenshots::onClientTick);
         NeoForge.EVENT_BUS.addListener(ScreenshotCapture::onFramePre);
         NeoForge.EVENT_BUS.addListener(ScreenshotCapture::onFramePost);
-    }
-
-    private static void migrateLegacyClientConfig() {
-        Path configDirectory = FMLPaths.CONFIGDIR.get();
-        Path legacyConfig = configDirectory.resolve("geotagged_screenshots-client.toml");
-        Path modernConfig = configDirectory.resolve(ModConstants.MODID + "-client.toml");
-        if (Files.isRegularFile(legacyConfig) && Files.notExists(modernConfig)) {
-            try {
-                Files.copy(legacyConfig, modernConfig);
-            } catch (IOException e) {
-                LogUtils.getLogger().warn("Couldn't migrate Geotagged Screenshots config", e);
-            }
-        }
     }
 
     private static void onScreenOpening(ScreenEvent.Opening event) {
