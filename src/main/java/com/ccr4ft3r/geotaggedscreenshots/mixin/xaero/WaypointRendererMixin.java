@@ -6,6 +6,8 @@ import com.ccr4ft3r.geotaggedscreenshots.container.ImageType;
 import com.ccr4ft3r.geotaggedscreenshots.screens.ScreenshotView;
 import com.ccr4ft3r.geotaggedscreenshots.util.ThumbnailGeometry;
 import com.mojang.blaze3d.platform.NativeImage;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -34,6 +36,10 @@ import java.util.concurrent.CompletableFuture;
 public abstract class WaypointRendererMixin extends ElementRenderer<Waypoint, WaypointRenderContext, WaypointRenderer> {
     @Unique
     private static boolean geotagged_screenshots$mousePressed;
+    @Unique
+    private static boolean geotagged_screenshots$mapCandidateLogged;
+    @Unique
+    private static boolean geotagged_screenshots$mapTextureLogged;
 
     protected WaypointRendererMixin(WaypointRenderContext context, ElementRenderProvider<Waypoint, WaypointRenderContext> provider, ElementReader<Waypoint, WaypointRenderContext, WaypointRenderer> reader) {
         super(context, provider, reader);
@@ -48,6 +54,11 @@ public abstract class WaypointRendererMixin extends ElementRenderer<Waypoint, Wa
         GeotaggedScreenshot screenshot = GeotaggedScreenshots.ALBUM.getScreenshot(waypoint.getName());
         if (screenshot == null) {
             return;
+        }
+
+        if (!geotagged_screenshots$mapCandidateLogged) {
+            geotagged_screenshots$mapCandidateLogged = true;
+            LogUtils.getLogger().info("Geotagged World Map renderer found screenshot waypoint {}", waypoint.getName());
         }
 
         Minecraft minecraft = Minecraft.getInstance();
@@ -76,7 +87,22 @@ public abstract class WaypointRendererMixin extends ElementRenderer<Waypoint, Wa
             return;
         }
 
-        graphics.blit(id, -width / 2, -height / 2, 0, 0, width, height, 1, 1, 1, RenderPipelines.GUI_TEXTURED);
+        PoseStack pose = graphics.pose();
+        pose.pushPose();
+        try {
+            pose.translate(partialX, partialY, 0.0D);
+            float waypointScale = scale * this.context.worldmapWaypointsScale;
+            pose.scale(waypointScale, waypointScale, 1.0F);
+            graphics.blit(id, -width / 2, -height / 2, 0, 0, width, height, 1, 1, 1, RenderPipelines.GUI_TEXTURED);
+        } finally {
+            pose.popPose();
+        }
+
+        if (!geotagged_screenshots$mapTextureLogged) {
+            geotagged_screenshots$mapTextureLogged = true;
+            LogUtils.getLogger().info("Geotagged World Map thumbnail submitted: {} ({}x{})", waypoint.getName(), width, height);
+        }
+
         cir.setReturnValue(false);
     }
 
