@@ -31,6 +31,7 @@ public class GeotaggedScreenshots implements ClientModInitializer {
     public static WorldScreenshotAlbum ALBUM;
     private static WaypointSet synchronizedWaypointSet;
     private static int synchronizedWaypointCount = -1;
+    private static int waypointScanTicks;
 
     @Override
     public void onInitializeClient() {
@@ -60,9 +61,24 @@ public class GeotaggedScreenshots implements ClientModInitializer {
         }
 
         WaypointSet set = world.getWaypointSet(ModConstants.getWaypointSet());
-        if (set != null && (ALBUM == null || synchronizedWaypointSet != set || synchronizedWaypointCount != set.getWaypoints().size())) {
-            load();
+        if (set == null) {
+            return;
         }
+
+        if (ALBUM == null || synchronizedWaypointSet != set || ++waypointScanTicks >= 20) {
+            waypointScanTicks = 0;
+            if (ALBUM == null || synchronizedWaypointSet != set || synchronizedWaypointCount != countWaypoints(set)) {
+                load();
+            }
+        }
+    }
+
+    private static int countWaypoints(WaypointSet set) {
+        int count = 0;
+        for (var waypoint : set.getWaypoints()) {
+            count++;
+        }
+        return count;
     }
 
     private static MinimapWorld getCurrentWaypointWorld() {
@@ -77,6 +93,7 @@ public class GeotaggedScreenshots implements ClientModInitializer {
         }
         synchronizedWaypointSet = null;
         synchronizedWaypointCount = -1;
+        waypointScanTicks = 0;
     }
 
     public static void load() {
@@ -111,7 +128,7 @@ public class GeotaggedScreenshots implements ClientModInitializer {
         }
 
         synchronizedWaypointSet = screenshotSet;
-        synchronizedWaypointCount = screenshotSet.getWaypoints().size();
+        synchronizedWaypointCount = countWaypoints(screenshotSet);
 
         if (discovered > 0) {
             regenerateMissingThumbnails();
