@@ -59,6 +59,7 @@ tasks.withType(Jar).configureEach {
 }
 
 publishMods {
+    changelog = ""
     file = tasks.named('jar', Jar).flatMap { it.archiveFile }
     version = "${project.minecraft_version}-${project.mod_version}"
     displayName = tasks.named('jar', Jar).flatMap { it.archiveFile }.map { it.asFile.name }
