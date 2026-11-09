@@ -6,12 +6,10 @@ import com.ccr4ft3r.geotaggedscreenshots.container.ImageType;
 import com.ccr4ft3r.geotaggedscreenshots.util.ThumbnailGeometry;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.logging.LogUtils;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.resources.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -30,10 +28,6 @@ import java.util.concurrent.CompletableFuture;
 
 @Mixin(WaypointRenderer.class)
 public abstract class WaypointRendererMixin extends ElementRenderer<Waypoint, WaypointRenderContext, WaypointRenderer> {
-    @Unique
-    private static boolean geotagged_screenshots$mapCandidateLogged;
-    @Unique
-    private static boolean geotagged_screenshots$mapTextureLogged;
 
     protected WaypointRendererMixin(WaypointRenderContext context, ElementRenderProvider<Waypoint, WaypointRenderContext> provider, ElementReader<Waypoint, WaypointRenderContext, WaypointRenderer> reader) {
         super(context, provider, reader);
@@ -50,10 +44,6 @@ public abstract class WaypointRendererMixin extends ElementRenderer<Waypoint, Wa
             return;
         }
 
-        if (!geotagged_screenshots$mapCandidateLogged) {
-            geotagged_screenshots$mapCandidateLogged = true;
-            LogUtils.getLogger().info("Geotagged World Map renderer found screenshot waypoint {}", waypoint.getName());
-        }
 
 
         CompletableFuture<NativeImage> future = screenshot.getImageFuture(ImageType.THUMBNAIL);
@@ -84,10 +74,6 @@ public abstract class WaypointRendererMixin extends ElementRenderer<Waypoint, Wa
             pose.popPose();
         }
 
-        if (!geotagged_screenshots$mapTextureLogged) {
-            geotagged_screenshots$mapTextureLogged = true;
-            LogUtils.getLogger().info("Geotagged World Map thumbnail submitted: {} ({}x{})", waypoint.getName(), width, height);
-        }
 
         cir.setReturnValue(false);
     }
