@@ -80,6 +80,5 @@ public class XaeroWaypointUtil {
         GeotaggedScreenshots.ALBUM.add(screenshot);
         screenshot.getImageFuture(ImageType.THUMBNAIL);
 
-        LogUtils.getLogger().info("Added geotagged screenshot waypoint {} at {}", name, position);
     }
 }
