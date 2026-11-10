@@ -1,28 +1,27 @@
 package com.ccr4ft3r.geotaggedscreenshots.capture;
 
-import com.ccr4ft3r.geotaggedscreenshots.config.ClientConfig;
-import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.level.Level;
-import net.minecraft.network.chat.ClickEvent;
-import com.mojang.logging.LogUtils;
-import com.mojang.blaze3d.platform.NativeImage;
-import com.ccr4ft3r.geotaggedscreenshots.util.xaero.XaeroWaypointUtil;
-import com.ccr4ft3r.geotaggedscreenshots.util.ImageUtil;
-import com.ccr4ft3r.geotaggedscreenshots.container.WorldScreenshotAlbum;
 import com.ccr4ft3r.geotaggedscreenshots.GeotaggedScreenshots;
+import com.ccr4ft3r.geotaggedscreenshots.config.ClientConfig;
+import com.ccr4ft3r.geotaggedscreenshots.container.WorldScreenshotAlbum;
+import com.ccr4ft3r.geotaggedscreenshots.util.ImageUtil;
+import com.ccr4ft3r.geotaggedscreenshots.util.xaero.XaeroWaypointUtil;
 import com.mojang.blaze3d.pipeline.RenderTarget;
+import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
+import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.event.RenderFrameEvent;
 
 import java.io.File;
-import java.util.Locale;
-import java.util.Date;
-import java.text.SimpleDateFormat;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.function.Consumer;
 
 public final class ScreenshotCapture {
@@ -84,7 +83,6 @@ public final class ScreenshotCapture {
         if (minecraft.player == null || minecraft.level == null) {
             return false;
         }
-
 
         Vec3 position = minecraft.player.position();
         Level sourceLevel = minecraft.level;
