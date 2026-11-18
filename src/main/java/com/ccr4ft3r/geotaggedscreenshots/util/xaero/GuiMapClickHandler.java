@@ -35,7 +35,7 @@ public final class GuiMapClickHandler {
         pressedY = event.getMouseY();
     }
 
-    public static void onMouseReleased(ScreenEvent.MouseButtonReleased.Pre event) {
+    public static void onMouseReleased(ScreenEvent.MouseButtonReleased.Post event) {
         if (event.getButton() != LEFT_MOUSE_BUTTON) {
             return;
         }
@@ -60,7 +60,6 @@ public final class GuiMapClickHandler {
         }
 
         Minecraft.getInstance().gui.setScreen(new ScreenshotView(screenshot, new Vec3(waypoint.getX(), waypoint.getY(), waypoint.getZ()), initialScreen));
-        event.setCanceled(true);
     }
 
     private static HoveredMapElementHolder<?, ?> getHoveredWaypoint(GuiMap map) {
