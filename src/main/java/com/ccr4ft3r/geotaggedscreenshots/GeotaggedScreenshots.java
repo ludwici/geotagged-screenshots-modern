@@ -6,6 +6,7 @@ import com.ccr4ft3r.geotaggedscreenshots.container.GeotaggedScreenshot;
 import com.ccr4ft3r.geotaggedscreenshots.container.ImageType;
 import com.ccr4ft3r.geotaggedscreenshots.container.WorldScreenshotAlbum;
 import com.ccr4ft3r.geotaggedscreenshots.util.ImageUtil;
+import com.ccr4ft3r.geotaggedscreenshots.util.xaero.GuiMapClickHandler;
 import com.ccr4ft3r.geotaggedscreenshots.util.xaero.XaeroWaypointUtil;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.logging.LogUtils;
@@ -44,6 +45,8 @@ public class GeotaggedScreenshots {
     public GeotaggedScreenshots(IEventBus modEventBus, ModContainer modContainer) {
         modContainer.registerConfig(ModConfig.Type.CLIENT, ClientConfig.CONFIG, ModConstants.MODID + "-client.toml");
         NeoForge.EVENT_BUS.addListener(GeotaggedScreenshots::onScreenOpening);
+        NeoForge.EVENT_BUS.addListener(GuiMapClickHandler::onMousePressed);
+        NeoForge.EVENT_BUS.addListener(GuiMapClickHandler::onMouseReleased);
         NeoForge.EVENT_BUS.addListener(ClientTickEvent.Post.class, GeotaggedScreenshots::onClientTick);
         NeoForge.EVENT_BUS.addListener(ScreenshotCapture::onFramePre);
         NeoForge.EVENT_BUS.addListener(ScreenshotCapture::onFramePost);
