@@ -50,7 +50,7 @@ public abstract class WaypointMapRendererMixin {
 
         int width = ThumbnailGeometry.minimapWidth();
         int height = ThumbnailGeometry.minimapHeight(image.getWidth(), image.getHeight());
-        graphics.blit(texture, x - width / 2, y - height / 2, width, height, 0, 0, image.getWidth(), image.getHeight(), image.getWidth(), RenderPipelines.GUI_TEXTURED);
+        graphics.blit(texture, x - width / 2, y - height / 2, 0, 0, width, height, 1, 1, 1, RenderPipelines.GUI_TEXTURED);
         ci.cancel();
     }
 }
