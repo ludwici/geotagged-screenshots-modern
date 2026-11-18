@@ -5,12 +5,14 @@ import com.ccr4ft3r.geotaggedscreenshots.container.GeotaggedScreenshot;
 import com.ccr4ft3r.geotaggedscreenshots.container.ImageType;
 import com.ccr4ft3r.geotaggedscreenshots.container.WorldScreenshotAlbum;
 import com.ccr4ft3r.geotaggedscreenshots.util.ImageUtil;
+import com.ccr4ft3r.geotaggedscreenshots.util.xaero.GuiMapClickHandler;
 import com.ccr4ft3r.geotaggedscreenshots.util.xaero.XaeroWaypointUtil;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.logging.LogUtils;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
+import net.fabricmc.fabric.api.client.screen.v1.ScreenMouseEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import xaero.hud.minimap.BuiltInHudModules;
@@ -39,6 +41,8 @@ public class GeotaggedScreenshots implements ClientModInitializer {
         ClientTickEvents.END_CLIENT_TICK.register(GeotaggedScreenshots::onClientTick);
         ScreenEvents.AFTER_INIT.register((client, screen, scaledWidth, scaledHeight) -> {
             if (screen instanceof GuiMap) {
+                ScreenMouseEvents.beforeMouseClick(screen).register(GuiMapClickHandler::onMousePressed);
+                ScreenMouseEvents.afterMouseRelease(screen).register(GuiMapClickHandler::onMouseReleased);
                 client.execute(GeotaggedScreenshots::load);
             }
         });
