@@ -7,8 +7,7 @@
     "ScreenshotMixin",
     "xaero.WaypointRendererMixin",
     "xaero.WaypointReaderMixin",
-    "xaero.WaypointMapRendererMixin",
-    "xaero.GuiMapClickMixin"
+    "xaero.WaypointMapRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1
