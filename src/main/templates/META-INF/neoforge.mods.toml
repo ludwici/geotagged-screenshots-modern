@@ -9,7 +9,8 @@ version="${mod_version}"
 displayName="${mod_name}"
 displayURL="https://github.com/ludwici/geotagged-screenshots-modern"
 authors="${mod_authors}"
-logoFile="logo.png"
+iconFile="logo.png"
+bannerFile="logo.png"
 displayTest="IGNORE_SERVER_VERSION"
 description='''${mod_description}'''
 
