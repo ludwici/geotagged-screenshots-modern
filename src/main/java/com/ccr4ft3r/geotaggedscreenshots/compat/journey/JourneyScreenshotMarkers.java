@@ -32,6 +32,8 @@ import java.util.concurrent.CompletableFuture;
 
 public final class JourneyScreenshotMarkers {
     private static IClientAPI api;
+    private static boolean mappingActive;
+    private static String activeWorld;
     private static final Map<String, MarkerOverlay> MARKERS = new HashMap<>();
     private static final Set<String> PENDING = new HashSet<>();
 
@@ -42,7 +44,14 @@ public final class JourneyScreenshotMarkers {
         api = clientApi;
     }
 
+    public static void beginMapping() {
+        clear();
+        mappingActive = true;
+    }
+
     public static void clear() {
+        mappingActive = false;
+        activeWorld = null;
         MARKERS.clear();
         PENDING.clear();
         if (api != null) {
@@ -51,12 +60,20 @@ public final class JourneyScreenshotMarkers {
     }
 
     public static void refresh() {
-        if (api == null || GeotaggedScreenshots.ALBUM == null || Minecraft.getInstance().level == null) {
+        if (!mappingActive || api == null || GeotaggedScreenshots.ALBUM == null || Minecraft.getInstance().level == null) {
             return;
         }
 
         if (!api.playerAccepts(ModConstants.MODID, DisplayType.Marker)) {
             return;
+        }
+
+        String worldId = GeotaggedScreenshots.ALBUM.getId();
+        if (!worldId.equals(activeWorld)) {
+            MARKERS.clear();
+            PENDING.clear();
+            api.removeAll(ModConstants.MODID);
+            activeWorld = worldId;
         }
 
         for (ScreenshotMetadata.Entry entry : ScreenshotMetadata.entries()) {
@@ -79,7 +96,7 @@ public final class JourneyScreenshotMarkers {
             if (PENDING.add(entry.name())) {
                 future.whenComplete((image, exception) -> Minecraft.getInstance().execute(() -> {
                     PENDING.remove(entry.name());
-                    if (image != null && GeotaggedScreenshots.ALBUM != null
+                    if (mappingActive && image != null && GeotaggedScreenshots.ALBUM != null
                             && GeotaggedScreenshots.ALBUM.getScreenshot(entry.name()) == screenshot) {
                         showWhenReady(entry, screenshot);
                     }
