@@ -1,5 +1,6 @@
 {
   "required": true,
+  "plugin": "com.ccr4ft3r.geotaggedscreenshots.mixin.GeotaggedMixinPlugin",
   "minVersion": "0.8",
   "package": "com.ccr4ft3r.geotaggedscreenshots.mixin",
   "compatibilityLevel": "JAVA_21",

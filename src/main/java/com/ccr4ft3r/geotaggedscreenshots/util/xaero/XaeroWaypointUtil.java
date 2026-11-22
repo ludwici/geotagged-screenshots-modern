@@ -3,6 +3,7 @@ package com.ccr4ft3r.geotaggedscreenshots.util.xaero;
 import com.ccr4ft3r.geotaggedscreenshots.GeotaggedScreenshots;
 import com.ccr4ft3r.geotaggedscreenshots.container.GeotaggedScreenshot;
 import com.ccr4ft3r.geotaggedscreenshots.container.ImageType;
+import com.ccr4ft3r.geotaggedscreenshots.container.ScreenshotMetadata;
 import com.ccr4ft3r.geotaggedscreenshots.mixin.xaero.SupportXaeroMinimapAccessor;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
@@ -66,6 +67,25 @@ public class XaeroWaypointUtil {
         return set;
     }
 
+    public static void loadExistingWaypoints() {
+        WaypointSet set = getScreenshotWaypointSet();
+        Minecraft minecraft = Minecraft.getInstance();
+        if (set == null || minecraft.level == null || GeotaggedScreenshots.ALBUM == null) {
+            return;
+        }
+
+        for (Waypoint waypoint : set.getWaypoints()) {
+            String name = waypoint.getName();
+            if (GeotaggedScreenshots.ALBUM.getScreenshot(name) == null) {
+                GeotaggedScreenshot screenshot = new GeotaggedScreenshot(name);
+                if (screenshot.getFile(ImageType.ORIGINAL).isFile()) {
+                    GeotaggedScreenshots.ALBUM.add(screenshot);
+                    ScreenshotMetadata.importWaypoint(name, new Vec3(waypoint.getX(), waypoint.getY(), waypoint.getZ()), minecraft.level.dimension());
+                }
+            }
+        }
+    }
+
     public static void addNewScreenshotWaypoint(Vec3 position, File screenshotFile, File thumbnailFile) {
         WaypointSet set = getScreenshotWaypointSet();
         if (set == null || GeotaggedScreenshots.ALBUM == null) {
@@ -76,12 +96,5 @@ public class XaeroWaypointUtil {
         Waypoint waypoint = new Waypoint((int) position.x, (int) position.y, (int) position.z, name, "S", WaypointColor.AQUA);
         set.add(waypoint);
 
-        GeotaggedScreenshot screenshot = new GeotaggedScreenshot(name)
-                .setFile(ImageType.ORIGINAL, screenshotFile)
-                .setFile(ImageType.THUMBNAIL, thumbnailFile);
-        GeotaggedScreenshots.ALBUM.add(screenshot);
-        screenshot.getImageFuture(ImageType.THUMBNAIL);
-
-        LogUtils.getLogger().debug("Added screenshot waypoint at {}", position);
     }
 }

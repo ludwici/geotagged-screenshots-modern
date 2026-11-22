@@ -1,69 +1,99 @@
 package com.ccr4ft3r.geotaggedscreenshots;
 
+import com.ccr4ft3r.geotaggedscreenshots.compat.MapCompat;
 import com.ccr4ft3r.geotaggedscreenshots.config.ClientConfig;
 import com.ccr4ft3r.geotaggedscreenshots.container.GeotaggedScreenshot;
 import com.ccr4ft3r.geotaggedscreenshots.container.ImageType;
+import com.ccr4ft3r.geotaggedscreenshots.container.ScreenshotMetadata;
 import com.ccr4ft3r.geotaggedscreenshots.container.WorldScreenshotAlbum;
 import com.ccr4ft3r.geotaggedscreenshots.util.ImageUtil;
 import com.ccr4ft3r.geotaggedscreenshots.util.xaero.XaeroWaypointUtil;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.logging.LogUtils;
-import net.fabricmc.api.ClientModInitializer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
-import xaero.hud.minimap.waypoint.set.WaypointSet;
-import xaero.map.core.XaeroWorldMapCore;
-
+import net.minecraft.world.phys.Vec3;
 import java.io.File;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
+import net.fabricmc.api.ClientModInitializer;
 
 public class GeotaggedScreenshots implements ClientModInitializer {
     public static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();
     public static WorldScreenshotAlbum ALBUM;
+    private static Runnable journeyRefresh;
 
     @Override
     public void onInitializeClient() {
         ClientConfig.load();
     }
 
+    public static void setJourneyRefresh(Runnable callback) {
+        journeyRefresh = callback;
+    }
+
     public static void load() {
-        if (Minecraft.getInstance().level == null || XaeroWorldMapCore.currentSession == null) {
+        String worldId = ScreenshotMetadata.currentWorldId();
+        if (worldId == null) {
             return;
         }
 
-        var processor = XaeroWorldMapCore.currentSession.getMapProcessor();
-        if (processor == null || processor.getMapWorld() == null) {
-            return;
-        }
-
-        String newWorldId = processor.getMapWorld().toString();
-        WaypointSet screenshotSet = XaeroWaypointUtil.getScreenshotWaypointSet();
-        if (screenshotSet == null) {
-            return;
-        }
-
-        if (ALBUM == null || !ALBUM.getId().equals(newWorldId)) {
+        boolean newWorld = ALBUM == null || !ALBUM.getId().equals(worldId);
+        if (newWorld) {
             if (ALBUM != null) {
                 ALBUM.getScreenshots().forEach(GeotaggedScreenshot::close);
             }
 
-            ALBUM = new WorldScreenshotAlbum(newWorldId);
-        }
-
-        int discovered = 0;
-        for (var waypoint : screenshotSet.getWaypoints()) {
-            if (ALBUM.getScreenshot(waypoint.getName()) == null) {
-                ALBUM.add(new GeotaggedScreenshot(waypoint.getName()));
-                discovered++;
+            ALBUM = new WorldScreenshotAlbum(worldId);
+            ScreenshotMetadata.load(worldId);
+            for (ScreenshotMetadata.Entry entry : ScreenshotMetadata.entries()) {
+                GeotaggedScreenshot screenshot = new GeotaggedScreenshot(entry.name());
+                if (screenshot.getFile(ImageType.ORIGINAL).isFile()) {
+                    ALBUM.add(screenshot);
+                }
             }
         }
 
-        if (discovered > 0) {
+        if (MapCompat.hasXaero()) {
+            XaeroWaypointUtil.loadExistingWaypoints();
+        }
+
+        if (newWorld) {
             regenerateMissingThumbnails();
+        }
+
+        if (journeyRefresh != null) {
+            journeyRefresh.run();
+        }
+    }
+
+    public static void recordScreenshot(Vec3 position, File screenshotFile, File thumbnailFile) {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.level == null) {
+            return;
+        }
+
+        load();
+        if (ALBUM == null) {
+            return;
+        }
+
+        String name = screenshotFile.getName().replaceFirst("\\.[^.]+$", "");
+        ScreenshotMetadata.saveScreenshot(name, position, minecraft.level.dimension());
+        GeotaggedScreenshot screenshot = new GeotaggedScreenshot(name)
+                .setFile(ImageType.ORIGINAL, screenshotFile)
+                .setFile(ImageType.THUMBNAIL, thumbnailFile);
+        ALBUM.add(screenshot);
+        screenshot.getImageFuture(ImageType.THUMBNAIL);
+
+        if (MapCompat.hasXaero()) {
+            XaeroWaypointUtil.addNewScreenshotWaypoint(position, screenshotFile, thumbnailFile);
+        }
+
+        if (journeyRefresh != null) {
+            journeyRefresh.run();
         }
     }
 

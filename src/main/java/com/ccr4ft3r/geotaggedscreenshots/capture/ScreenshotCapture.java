@@ -86,11 +86,7 @@ public final class ScreenshotCapture {
 
                 minecraft.execute(() -> {
                     if (minecraft.level == sourceLevel) {
-                        GeotaggedScreenshots.load();
-                        WorldScreenshotAlbum album = GeotaggedScreenshots.ALBUM;
-                        if (album != null) {
-                            XaeroWaypointUtil.addNewScreenshotWaypoint(position, screenshotFile, thumbnailFile);
-                        }
+                        GeotaggedScreenshots.recordScreenshot(position, screenshotFile, thumbnailFile);
                     }
 
                     if (!ClientConfig.CONFIG_DATA.disableScreenshotChatMessage) {
