@@ -18,6 +18,7 @@ public class GeotaggedJourneyPlugin implements IClientPlugin {
         ClientEventRegistry.MAPPING_EVENT.subscribe(ModConstants.MODID, event -> {
             if (event.getStage() == MappingEvent.Stage.MAPPING_STARTED) {
                 Minecraft.getInstance().execute(() -> {
+                    JourneyScreenshotMarkers.beginMapping();
                     GeotaggedScreenshots.load();
                     JourneyScreenshotMarkers.refresh();
                 });
