@@ -7,6 +7,7 @@ import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.LevelResource;
 import net.minecraft.world.phys.Vec3;
 
 import java.io.Reader;
@@ -34,7 +35,7 @@ public final class ScreenshotMetadata {
         }
 
         if (minecraft.getSingleplayerServer() != null) {
-            return "singleplayer:" + minecraft.getSingleplayerServer().getWorldData().getLevelName();
+            return "singleplayer:" + minecraft.getSingleplayerServer().getWorldPath(LevelResource.ROOT).getFileName();
         }
 
         if (minecraft.getCurrentServer() != null) {
