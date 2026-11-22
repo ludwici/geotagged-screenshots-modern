@@ -56,11 +56,12 @@ public class GeotaggedScreenshots implements ClientModInitializer {
             }
         }
 
+        int screenshotsBeforeXaero = ALBUM.getScreenshots().size();
         if (MapCompat.hasXaero()) {
             XaeroWaypointUtil.loadExistingWaypoints();
         }
 
-        if (newWorld) {
+        if (newWorld || ALBUM.getScreenshots().size() > screenshotsBeforeXaero) {
             regenerateMissingThumbnails();
         }
 
@@ -131,6 +132,9 @@ public class GeotaggedScreenshots implements ClientModInitializer {
                     if (generatedThumbnail != null && generatedThumbnail.isFile()) {
                         screenshot.setFile(ImageType.THUMBNAIL, generatedThumbnail);
                         screenshot.getImageFuture(ImageType.THUMBNAIL);
+                        if (journeyRefresh != null) {
+                            journeyRefresh.run();
+                        }
                     }
 
                     if (completed.incrementAndGet() == missing.size()) {
