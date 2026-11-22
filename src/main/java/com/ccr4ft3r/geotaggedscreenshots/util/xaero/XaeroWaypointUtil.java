@@ -74,14 +74,25 @@ public class XaeroWaypointUtil {
             return;
         }
 
+        java.util.Set<String> names = new java.util.HashSet<>();
         for (Waypoint waypoint : set.getWaypoints()) {
             String name = waypoint.getName();
+            names.add(name);
             if (GeotaggedScreenshots.ALBUM.getScreenshot(name) == null) {
                 GeotaggedScreenshot screenshot = new GeotaggedScreenshot(name);
                 if (screenshot.getFile(ImageType.ORIGINAL).isFile()) {
                     GeotaggedScreenshots.ALBUM.add(screenshot);
                     ScreenshotMetadata.importWaypoint(name, new Vec3(waypoint.getX(), waypoint.getY(), waypoint.getZ()), minecraft.level.dimension());
                 }
+            }
+        }
+
+        String dimension = minecraft.level.dimension().location().toString();
+        for (ScreenshotMetadata.Entry entry : ScreenshotMetadata.entries()) {
+            if (dimension.equals(entry.dimension()) && !names.contains(entry.name())
+                    && GeotaggedScreenshots.ALBUM.getScreenshot(entry.name()) != null) {
+                set.add(new Waypoint(entry.x(), entry.y(), entry.z(), entry.name(), "S", WaypointColor.AQUA));
+                names.add(entry.name());
             }
         }
     }
