@@ -10,7 +10,7 @@ Originally created by **[CCr4ft3r](https://github.com/CCr4ft3r/geotagged-screens
 
 ## About
 
-Minecraft usually saves screenshots as files without an easy way to find the location where they were taken. Geotagged Screenshots links your screenshots to waypoints in **Xaero's World Map** and **Xaero's Minimap**, letting you revisit memorable places.
+Minecraft usually saves screenshots as files without an easy way to find the location where they were taken. Geotagged Screenshots links your screenshots to their locations in **JourneyMap** and **Xaero's World Map / Minimap**, letting you revisit memorable places. Both map integrations are optional: screenshots are still saved when no supported map mod is installed.
 
 ![Screenshot preview](https://i.imgur.com/KabmXSc.png)
 
@@ -18,9 +18,10 @@ Minecraft usually saves screenshots as files without an easy way to find the loc
 
 - Save screenshots in PNG or JPEG format.
 - Temporarily hide the HUD when taking screenshots and restore your previous F1 state.
-- Automatically create screenshot waypoints in Xaero's maps.
-- Display screenshot thumbnails on Xaero's World Map.
-- Open full-size screenshots by clicking their waypoints on the world map.
+- Automatically create screenshot waypoints in Xaero's maps when both Xaero's Minimap and World Map are installed.
+- Display screenshot thumbnails on Xaero's maps and JourneyMap.
+- Open full-size screenshots by left-clicking a thumbnail on the full-screen map.
+- Persist screenshot positions and dimensions so JourneyMap markers are restored after reconnecting.
 - Regenerate missing thumbnails from the original screenshots.
 - Customize waypoint sets and screenshot-related chat notifications.
 
@@ -32,7 +33,7 @@ Settings are stored in the Minecraft `config` directory in `geotagged_screenshot
 
 **I can't see my screenshots on the world map. What should I check?**
 
-Make sure screenshot waypoints are enabled and the `Geotagged Screenshots` waypoint set is selected in Xaero's map. Screenshots need their corresponding waypoints to appear.
+Install JourneyMap or both Xaero's Minimap and Xaero's World Map. With Xaero, ensure screenshot waypoints are enabled and select the configured screenshot waypoint set. JourneyMap markers are rebuilt from the screenshot location index in `screenshots/geotagged_locations/`. Existing Xaero screenshot waypoints are imported into that index when Xaero is loaded.
 
 **Can I include Geotagged Screenshots in my modpack?**
 
