@@ -41,7 +41,7 @@ public final class ScreenshotMetadata {
             return "multiplayer:" + minecraft.getCurrentServer().ip;
         }
 
-        return "world:" + minecraft.level.getLevelData().getLevelName();
+        return "world:" + minecraft.level.dimension().location();
     }
 
     public static void load(String id) {
