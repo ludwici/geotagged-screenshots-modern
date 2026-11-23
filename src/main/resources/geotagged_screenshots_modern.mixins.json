@@ -6,7 +6,6 @@
   "compatibilityLevel": "JAVA_21",
   "client": [
     "ScreenshotMixin",
-    "xaero.SupportXaeroMinimapAccessor",
     "xaero.WaypointRendererMixin",
     "xaero.WaypointReaderMixin",
     "xaero.WaypointMapRendererMixin"
