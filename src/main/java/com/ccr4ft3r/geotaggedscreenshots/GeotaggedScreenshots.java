@@ -49,17 +49,15 @@ public class GeotaggedScreenshots implements ClientModInitializer {
             return null;
         }
 
-        String worldId = ScreenshotMetadata.currentWorldId();
-        if (worldId == null) {
-            return null;
-        }
-
-        if (ALBUM == null || !ALBUM.getId().equals(worldId)) {
-            load();
-        }
-
         if (ALBUM == null) {
-            return null;
+            String worldId = ScreenshotMetadata.currentWorldId();
+            if (worldId == null) {
+                return null;
+            }
+
+            if (loadAlbum(worldId)) {
+                regenerateMissingThumbnails();
+            }
         }
 
         GeotaggedScreenshot screenshot = ALBUM.getScreenshot(name);
@@ -91,25 +89,31 @@ public class GeotaggedScreenshots implements ClientModInitializer {
         journeyRefresh = callback;
     }
 
+    private static boolean loadAlbum(String worldId) {
+        if (ALBUM != null && ALBUM.getId().equals(worldId)) {
+            return false;
+        }
+
+        closeAlbum();
+        ALBUM = new WorldScreenshotAlbum(worldId);
+        ScreenshotMetadata.load(worldId);
+        for (ScreenshotMetadata.Entry entry : ScreenshotMetadata.entries()) {
+            GeotaggedScreenshot screenshot = new GeotaggedScreenshot(entry.name());
+            if (screenshot.getFile(ImageType.ORIGINAL).isFile()) {
+                ALBUM.add(screenshot);
+            }
+        }
+
+        return true;
+    }
+
     public static void load() {
         String worldId = ScreenshotMetadata.currentWorldId();
         if (worldId == null) {
             return;
         }
 
-        boolean newWorld = ALBUM == null || !ALBUM.getId().equals(worldId);
-        if (newWorld) {
-            closeAlbum();
-            ALBUM = new WorldScreenshotAlbum(worldId);
-            ScreenshotMetadata.load(worldId);
-            for (ScreenshotMetadata.Entry entry : ScreenshotMetadata.entries()) {
-                GeotaggedScreenshot screenshot = new GeotaggedScreenshot(entry.name());
-                if (screenshot.getFile(ImageType.ORIGINAL).isFile()) {
-                    ALBUM.add(screenshot);
-                }
-            }
-        }
-
+        boolean newWorld = loadAlbum(worldId);
         int screenshotsBeforeXaero = ALBUM.getScreenshots().size();
         if (MapCompat.hasXaero()) {
             XaeroWaypointUtil.loadExistingWaypoints();
