@@ -19,15 +19,72 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 
 public class GeotaggedScreenshots implements ClientModInitializer {
     public static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();
     public static WorldScreenshotAlbum ALBUM;
     private static Runnable journeyRefresh;
+    private static final java.util.Set<String> nonScreenshotWaypoints = new java.util.HashSet<>();
 
     @Override
     public void onInitializeClient() {
         ClientConfig.load();
+        ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> client.execute(GeotaggedScreenshots::load));
+        ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> closeAlbum());
+    }
+
+    private static void closeAlbum() {
+        if (ALBUM != null) {
+            ALBUM.getScreenshots().forEach(GeotaggedScreenshot::close);
+            ALBUM = null;
+        }
+
+        nonScreenshotWaypoints.clear();
+    }
+
+    public static GeotaggedScreenshot findXaeroScreenshot(String name, int x, int y, int z) {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.level == null || !MapCompat.hasXaero()) {
+            return null;
+        }
+
+        String worldId = ScreenshotMetadata.currentWorldId();
+        if (worldId == null) {
+            return null;
+        }
+
+        if (ALBUM == null || !ALBUM.getId().equals(worldId)) {
+            load();
+        }
+
+        if (ALBUM == null) {
+            return null;
+        }
+
+        GeotaggedScreenshot screenshot = ALBUM.getScreenshot(name);
+        if (screenshot != null) {
+            return screenshot;
+        }
+
+        if (nonScreenshotWaypoints.contains(name)) {
+            return null;
+        }
+
+        screenshot = new GeotaggedScreenshot(name);
+        if (!screenshot.getFile(ImageType.ORIGINAL).isFile()) {
+            nonScreenshotWaypoints.add(name);
+            return null;
+        }
+
+        ALBUM.add(screenshot);
+        ScreenshotMetadata.importWaypoint(name, new Vec3(x, y, z), minecraft.level.dimension());
+        regenerateMissingThumbnails();
+        if (journeyRefresh != null) {
+            journeyRefresh.run();
+        }
+
+        return screenshot;
     }
 
     public static void setJourneyRefresh(Runnable callback) {
@@ -42,10 +99,7 @@ public class GeotaggedScreenshots implements ClientModInitializer {
 
         boolean newWorld = ALBUM == null || !ALBUM.getId().equals(worldId);
         if (newWorld) {
-            if (ALBUM != null) {
-                ALBUM.getScreenshots().forEach(GeotaggedScreenshot::close);
-            }
-
+            closeAlbum();
             ALBUM = new WorldScreenshotAlbum(worldId);
             ScreenshotMetadata.load(worldId);
             for (ScreenshotMetadata.Entry entry : ScreenshotMetadata.entries()) {
@@ -82,6 +136,7 @@ public class GeotaggedScreenshots implements ClientModInitializer {
         }
 
         String name = screenshotFile.getName().replaceFirst("\\.[^.]+$", "");
+        nonScreenshotWaypoints.remove(name);
         ScreenshotMetadata.saveScreenshot(name, position, minecraft.level.dimension());
         GeotaggedScreenshot screenshot = new GeotaggedScreenshot(name)
                 .setFile(ImageType.ORIGINAL, screenshotFile)
