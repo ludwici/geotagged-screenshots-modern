@@ -29,6 +29,7 @@ import net.neoforged.neoforge.client.event.ScreenEvent;
 import net.neoforged.neoforge.client.event.ScreenshotEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
 import java.io.IOException;
 
 @Mod(value = ModConstants.MODID, dist = Dist.CLIENT)
@@ -36,6 +37,8 @@ public class GeotaggedScreenshots {
     public static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();
     public static WorldScreenshotAlbum ALBUM;
     private static Runnable journeyRefresh;
+    private static boolean xaeroSynchronized;
+    private static int xaeroRetryTicks;
     private static final java.util.Set<String> nonScreenshotWaypoints = new java.util.HashSet<>();
 
     public GeotaggedScreenshots(IEventBus modEventBus, ModContainer modContainer) {
@@ -44,6 +47,7 @@ public class GeotaggedScreenshots {
         NeoForge.EVENT_BUS.addListener(GeotaggedScreenshots::onScreenOpening);
         NeoForge.EVENT_BUS.addListener(GeotaggedScreenshots::onClientLogin);
         NeoForge.EVENT_BUS.addListener(GeotaggedScreenshots::onClientLogout);
+        NeoForge.EVENT_BUS.addListener(ClientTickEvent.Post.class, GeotaggedScreenshots::onClientTick);
         NeoForge.EVENT_BUS.addListener(ScreenshotCapture::onFramePre);
         NeoForge.EVENT_BUS.addListener(ScreenshotCapture::onFramePost);
     }
@@ -94,6 +98,29 @@ public class GeotaggedScreenshots {
         minecraft.execute(() -> recordScreenshot(position, screenshotFile, thumbnailFile));
     }
 
+    private static void retryXaeroSync(Minecraft client) {
+        if (client.level == null || ALBUM == null || xaeroSynchronized || !MapCompat.hasXaero()) {
+            return;
+        }
+
+        if (++xaeroRetryTicks < 20) {
+            return;
+        }
+
+        xaeroRetryTicks = 0;
+        xaeroSynchronized = XaeroWaypointUtil.loadExistingWaypoints();
+        if (xaeroSynchronized) {
+            regenerateMissingThumbnails();
+            if (journeyRefresh != null) {
+                journeyRefresh.run();
+            }
+        }
+    }
+
+    private static void onClientTick(ClientTickEvent.Post event) {
+        retryXaeroSync(Minecraft.getInstance());
+    }
+
     private static void closeAlbum() {
         if (ALBUM != null) {
             ALBUM.getScreenshots().forEach(GeotaggedScreenshot::close);
@@ -101,6 +128,8 @@ public class GeotaggedScreenshots {
         }
 
         nonScreenshotWaypoints.clear();
+        xaeroSynchronized = false;
+        xaeroRetryTicks = 0;
     }
 
     public static GeotaggedScreenshot findXaeroScreenshot(String name, int x, int y, int z) {
@@ -176,7 +205,7 @@ public class GeotaggedScreenshots {
         boolean newWorld = loadAlbum(worldId);
         int screenshotsBeforeXaero = ALBUM.getScreenshots().size();
         if (MapCompat.hasXaero()) {
-            XaeroWaypointUtil.loadExistingWaypoints();
+            xaeroSynchronized = XaeroWaypointUtil.loadExistingWaypoints();
         }
 
         if (newWorld || ALBUM.getScreenshots().size() > screenshotsBeforeXaero) {
