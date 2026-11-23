@@ -24,11 +24,8 @@ import java.util.concurrent.CompletableFuture;
 public abstract class WaypointMapRendererMixin {
     @Inject(method = "drawIconOnGUI(Lnet/minecraft/client/gui/GuiGraphics;Lxaero/common/minimap/render/MinimapRendererHelper;Lxaero/common/minimap/waypoints/Waypoint;IIILnet/minecraft/client/renderer/MultiBufferSource$BufferSource;Lcom/mojang/blaze3d/vertex/VertexConsumer;Lcom/mojang/blaze3d/vertex/VertexConsumer;)V", at = @At("HEAD"), remap = false, cancellable = true)
     private void geotagged_screenshots$renderThumbnail(GuiGraphics graphics, MinimapRendererHelper helper, Waypoint waypoint, int x, int y, int opacity, MultiBufferSource.BufferSource buffers, VertexConsumer background, VertexConsumer icon, CallbackInfo ci) {
-        if (GeotaggedScreenshots.ALBUM == null) {
-            return;
-        }
-
-        GeotaggedScreenshot screenshot = GeotaggedScreenshots.ALBUM.getScreenshot(waypoint.getName());
+        GeotaggedScreenshot screenshot = GeotaggedScreenshots.findXaeroScreenshot(
+                waypoint.getName(), waypoint.getX(), waypoint.getY(), waypoint.getZ());
         if (screenshot == null) {
             return;
         }
