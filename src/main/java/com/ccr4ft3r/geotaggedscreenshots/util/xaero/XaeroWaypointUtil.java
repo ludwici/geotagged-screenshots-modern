@@ -67,11 +67,11 @@ public class XaeroWaypointUtil {
         return set;
     }
 
-    public static void loadExistingWaypoints() {
+    public static boolean loadExistingWaypoints() {
         WaypointSet set = getScreenshotWaypointSet();
         Minecraft minecraft = Minecraft.getInstance();
         if (set == null || minecraft.level == null || GeotaggedScreenshots.ALBUM == null) {
-            return;
+            return false;
         }
 
         java.util.Set<String> names = new java.util.HashSet<>();
@@ -95,6 +95,7 @@ public class XaeroWaypointUtil {
                 names.add(entry.name());
             }
         }
+        return true;
     }
 
     public static void addNewScreenshotWaypoint(Vec3 position, File screenshotFile, File thumbnailFile) {

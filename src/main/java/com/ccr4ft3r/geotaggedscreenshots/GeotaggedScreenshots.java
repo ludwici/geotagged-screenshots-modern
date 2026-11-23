@@ -20,11 +20,14 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 
 public class GeotaggedScreenshots implements ClientModInitializer {
     public static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();
     public static WorldScreenshotAlbum ALBUM;
     private static Runnable journeyRefresh;
+    private static boolean xaeroSynchronized;
+    private static int xaeroRetryTicks;
     private static final java.util.Set<String> nonScreenshotWaypoints = new java.util.HashSet<>();
 
     @Override
@@ -32,6 +35,26 @@ public class GeotaggedScreenshots implements ClientModInitializer {
         ClientConfig.load();
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> client.execute(GeotaggedScreenshots::load));
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> closeAlbum());
+        ClientTickEvents.END_CLIENT_TICK.register(GeotaggedScreenshots::retryXaeroSync);
+    }
+
+    private static void retryXaeroSync(Minecraft client) {
+        if (client.level == null || ALBUM == null || xaeroSynchronized || !MapCompat.hasXaero()) {
+            return;
+        }
+
+        if (++xaeroRetryTicks < 20) {
+            return;
+        }
+
+        xaeroRetryTicks = 0;
+        xaeroSynchronized = XaeroWaypointUtil.loadExistingWaypoints();
+        if (xaeroSynchronized) {
+            regenerateMissingThumbnails();
+            if (journeyRefresh != null) {
+                journeyRefresh.run();
+            }
+        }
     }
 
     private static void closeAlbum() {
@@ -41,6 +64,8 @@ public class GeotaggedScreenshots implements ClientModInitializer {
         }
 
         nonScreenshotWaypoints.clear();
+        xaeroSynchronized = false;
+        xaeroRetryTicks = 0;
     }
 
     public static GeotaggedScreenshot findXaeroScreenshot(String name, int x, int y, int z) {
@@ -116,7 +141,7 @@ public class GeotaggedScreenshots implements ClientModInitializer {
         boolean newWorld = loadAlbum(worldId);
         int screenshotsBeforeXaero = ALBUM.getScreenshots().size();
         if (MapCompat.hasXaero()) {
-            XaeroWaypointUtil.loadExistingWaypoints();
+            xaeroSynchronized = XaeroWaypointUtil.loadExistingWaypoints();
         }
 
         if (newWorld || ALBUM.getScreenshots().size() > screenshotsBeforeXaero) {
