@@ -63,7 +63,7 @@ tasks.withType(Jar).configureEach {
 }
 
 publishMods {
-    changelog = ""
+    changelog = providers.fileContents(layout.projectDirectory.file("CHANGELOG.md")).asText
     file = tasks.named('remapJar').flatMap { it.archiveFile }
     version = "${project.minecraft_version}-${project.mod_version}"
     displayName = tasks.named('remapJar').flatMap { it.archiveFile }.map { it.asFile.name }

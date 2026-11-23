@@ -1,0 +1,2 @@
+- Xaero's Minimap and Xaero's World Map are now optional dependencies.
+- Added JourneyMap support for geotagged screenshot markers and previews.
