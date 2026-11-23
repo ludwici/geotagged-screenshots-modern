@@ -99,7 +99,15 @@ public class GeotaggedScreenshots {
     }
 
     private static void retryXaeroSync(Minecraft client) {
-        if (client.level == null || ALBUM == null || xaeroSynchronized || !MapCompat.hasXaero()) {
+        if (client.level == null) {
+            return;
+        }
+
+        if (ALBUM == null) {
+            load();
+        }
+
+        if (ALBUM == null || xaeroSynchronized || !MapCompat.hasXaero()) {
             return;
         }
 
