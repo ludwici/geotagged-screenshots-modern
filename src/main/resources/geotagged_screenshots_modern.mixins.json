@@ -8,7 +8,6 @@
     "GameRendererMixin",
     "MinecraftMixin",
     "ScreenshotMixin",
-    "xaero.SupportXaeroMinimapAccessor",
     "xaero.WaypointRendererMixin",
     "xaero.WaypointReaderMixin",
     "xaero.WaypointMapRendererMixin"

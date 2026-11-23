@@ -4,42 +4,30 @@ import com.ccr4ft3r.geotaggedscreenshots.GeotaggedScreenshots;
 import com.ccr4ft3r.geotaggedscreenshots.container.GeotaggedScreenshot;
 import com.ccr4ft3r.geotaggedscreenshots.container.ImageType;
 import com.ccr4ft3r.geotaggedscreenshots.container.ScreenshotMetadata;
-import com.ccr4ft3r.geotaggedscreenshots.mixin.xaero.SupportXaeroMinimapAccessor;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import xaero.common.minimap.waypoints.Waypoint;
-import xaero.hud.minimap.waypoint.set.WaypointSet;
-import xaero.common.minimap.waypoints.WaypointWorld;
+import xaero.hud.minimap.BuiltInHudModules;
+import xaero.hud.minimap.module.MinimapSession;
 import xaero.hud.minimap.waypoint.WaypointColor;
-import xaero.map.MapProcessor;
-import xaero.map.WorldMapSession;
-import xaero.map.core.XaeroWorldMapCore;
-import xaero.map.gui.GuiMap;
+import xaero.hud.minimap.waypoint.set.WaypointSet;
+import xaero.hud.minimap.world.MinimapWorld;
 import xaero.map.mods.SupportMods;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
 import static com.ccr4ft3r.geotaggedscreenshots.ModConstants.getWaypointSet;
 
-public class XaeroWaypointUtil {
-    public static void initWaypoints() {
-        Minecraft minecraft = Minecraft.getInstance();
-        if (minecraft.level == null || minecraft.player == null || XaeroWorldMapCore.currentSession == null || SupportMods.xaeroMinimap == null) {
-            return;
-        }
+public final class XaeroWaypointUtil {
+    private XaeroWaypointUtil() {
+    }
 
-        WorldMapSession session = XaeroWorldMapCore.currentSession;
-        MapProcessor processor = session.getMapProcessor();
-        if (processor == null || processor.getMapWorld() == null) {
-            return;
-        }
-
-        ResourceKey<Level> dimension = minecraft.level.dimension();
-        GuiMap guiMap = new GuiMap(null, null, processor, minecraft.player);
-        SupportMods.xaeroMinimap.checkWaypoints(processor.getMapWorld().isMultiplayer(), dimension, "", guiMap.width, guiMap.height, guiMap, processor.getMapWorld(), processor.getWorldDimensionTypeRegistry());
+    private static MinimapSession getSession() {
+        return BuiltInHudModules.MINIMAP.getCurrentSession();
     }
 
     public static WaypointSet getScreenshotWaypointSet() {
@@ -47,12 +35,12 @@ public class XaeroWaypointUtil {
             return null;
         }
 
-        SupportXaeroMinimapAccessor minimap = (SupportXaeroMinimapAccessor) SupportMods.xaeroMinimap;
-        if (minimap.waypointWorld() == null) {
-            initWaypoints();
+        MinimapSession session = getSession();
+        if (session == null) {
+            return null;
         }
 
-        WaypointWorld world = minimap.waypointWorld();
+        MinimapWorld world = session.getWorldManager().getCurrentWorld();
         if (world == null) {
             return null;
         }
@@ -74,7 +62,7 @@ public class XaeroWaypointUtil {
             return false;
         }
 
-        java.util.Set<String> names = new java.util.HashSet<>();
+        Set<String> names = new HashSet<>();
         for (Waypoint waypoint : set.getWaypoints()) {
             String name = waypoint.getName();
             names.add(name);
@@ -87,14 +75,21 @@ public class XaeroWaypointUtil {
             }
         }
 
+        boolean changed = false;
         String dimension = minecraft.level.dimension().location().toString();
         for (ScreenshotMetadata.Entry entry : ScreenshotMetadata.entries()) {
             if (dimension.equals(entry.dimension()) && !names.contains(entry.name())
                     && GeotaggedScreenshots.ALBUM.getScreenshot(entry.name()) != null) {
                 set.add(new Waypoint(entry.x(), entry.y(), entry.z(), entry.name(), "S", WaypointColor.AQUA));
                 names.add(entry.name());
+                changed = true;
             }
         }
+
+        if (changed) {
+            saveCurrentWorld();
+        }
+
         return true;
     }
 
@@ -107,6 +102,28 @@ public class XaeroWaypointUtil {
         String name = screenshotFile.getName().replaceFirst("\\.[^.]+$", "");
         Waypoint waypoint = new Waypoint((int) position.x, (int) position.y, (int) position.z, name, "S", WaypointColor.AQUA);
         set.add(waypoint);
+        saveCurrentWorld();
+    }
 
+    private static void saveCurrentWorld() {
+        MinimapSession session = getSession();
+        if (session == null) {
+            return;
+        }
+
+        MinimapWorld world = session.getWorldManager().getCurrentWorld();
+        if (world == null) {
+            return;
+        }
+
+        try {
+            session.getWorldManagerIO().saveWorld(world);
+        } catch (IOException exception) {
+            LogUtils.getLogger().error("Could not save Xaero screenshot waypoints", exception);
+        }
+
+        if (SupportMods.xaeroMinimap != null) {
+            SupportMods.xaeroMinimap.requestWaypointsRefresh();
+        }
     }
 }
