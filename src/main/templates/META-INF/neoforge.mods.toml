@@ -32,14 +32,21 @@ side="CLIENT"
 
 [[dependencies.${mod_id}]]
 modId="xaeroworldmap"
-type="required"
+type="optional"
 versionRange="[1.47.2,)"
 ordering="NONE"
 side="CLIENT"
 
 [[dependencies.${mod_id}]]
 modId="xaerominimap"
-type="required"
+type="optional"
 versionRange="[26.6.2,)"
+ordering="NONE"
+side="CLIENT"
+
+[[dependencies.${mod_id}]]
+modId="journeymap"
+type="optional"
+versionRange="[26.1.2-6.0.0,)"
 ordering="NONE"
 side="CLIENT"

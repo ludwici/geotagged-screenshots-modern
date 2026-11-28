@@ -2,9 +2,7 @@ package com.ccr4ft3r.geotaggedscreenshots.capture;
 
 import com.ccr4ft3r.geotaggedscreenshots.GeotaggedScreenshots;
 import com.ccr4ft3r.geotaggedscreenshots.config.ClientConfig;
-import com.ccr4ft3r.geotaggedscreenshots.container.WorldScreenshotAlbum;
 import com.ccr4ft3r.geotaggedscreenshots.util.ImageUtil;
-import com.ccr4ft3r.geotaggedscreenshots.util.xaero.XaeroWaypointUtil;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.logging.LogUtils;
@@ -95,11 +93,7 @@ public final class ScreenshotCapture {
 
                 minecraft.execute(() -> {
                     if (minecraft.level == sourceLevel) {
-                        GeotaggedScreenshots.load();
-                        WorldScreenshotAlbum album = GeotaggedScreenshots.ALBUM;
-                        if (album != null) {
-                            XaeroWaypointUtil.addNewScreenshotWaypoint(position, screenshotFile, thumbnailFile);
-                        }
+                        GeotaggedScreenshots.recordScreenshot(position, screenshotFile, thumbnailFile);
                     }
 
                     if (!ClientConfig.CONFIG_DATA.disableScreenshotChatMessage.get()) {
