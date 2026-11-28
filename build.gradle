@@ -12,6 +12,7 @@ base {
 }
 
 repositories {
+    maven { url = 'https://maven.blamejared.com' }
     maven {
         name = "Xaero's Maven"
         url = 'https://chocolateminecraft.com/maven'
@@ -25,8 +26,10 @@ dependencies {
     implementation "net.fabricmc:fabric-loader:${loader_version}"
     implementation "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
 
-    implementation "xaero.map:xaeroworldmap-fabric-${xaero_map_version}"
-    implementation "xaero.minimap:xaerominimap-fabric-${xaero_minimap_version}"
+    compileOnly "xaero.map:xaeroworldmap-fabric-${xaero_map_version}"
+    compileOnly "xaero.minimap:xaerominimap-fabric-${xaero_minimap_version}"
+
+    compileOnly "info.journeymap:journeymap-api-fabric:${journeymap_api_version}"
 
     testImplementation "org.junit.jupiter:junit-jupiter:5.11.4"
     testRuntimeOnly "org.junit.platform:junit-platform-launcher"
@@ -59,7 +62,7 @@ tasks.withType(Jar).configureEach {
 }
 
 publishMods {
-    changelog = ""
+    changelog = providers.fileContents(layout.projectDirectory.file("CHANGELOG.md")).asText
     file = tasks.named('jar', Jar).flatMap { it.archiveFile }
     version = "${project.minecraft_version}-${project.mod_version}"
     displayName = tasks.named('jar', Jar).flatMap { it.archiveFile }.map { it.asFile.name }
@@ -74,7 +77,8 @@ publishMods {
         client = true
         server = false
         requires("fabric-api")
-        requires("xaeros-minimap")
-        requires("xaeros-world-map")
+        optional("xaeros-minimap")
+        optional("xaeros-world-map")
+        optional("journeymap")
     }
 }
